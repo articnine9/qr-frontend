@@ -1,0 +1,106 @@
+.upload-page {
+  height: fit-content;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.upload-section {
+  margin-top: 7%;
+  width: 85%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.menu-add,
+.banner-add {
+  height: 40vh;
+  width: 50%;
+  border: 1px solid black;
+}
+
+
+::placeholder{
+  color: black;
+}
+.flex{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.category {
+  height: 400px;
+  border: 1px solid black;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.uploadbox, .bannerbox{
+  width: 50%;
+
+}
+.submit-button {
+  background-color: gray; 
+  color: white;
+  border: none; 
+  padding: 10px 20px; 
+  border-radius: 5px; 
+  cursor: not-allowed; 
+  transition: background-color 0.3s ease; 
+}
+
+.submit-button.active {
+  background-color: green; 
+  cursor: pointer; 
+}
+
+.banner-item p{
+  margin: 0;
+}
+.banners-list{
+overflow-y: scroll;
+scrollbar-width: none;
+scroll-behavior: smooth;
+}
+.categories-list{
+height: 250px;
+overflow-y: scroll;
+scrollbar-width: none;
+scroll-behavior: smooth;
+margin: 0%;
+}
+.category-item {
+width: 100%;
+display: flex;
+align-items: center;
+}
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  max-width: 500px;
+  width: 100%;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 24px;
+}
