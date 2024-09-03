@@ -13,7 +13,7 @@ const NavBar = () => {
       <div className="nav-bar">
         <nav class="navbar bg-body-tertiary">
           <div class="container-fluid ">
-            <a class="navbar-brand" href="/">
+            <a class="navbar-brand" href="/stocks">
               <img
                 src="https://e7.pngegg.com/pngimages/707/566/png-clipart-computer-icons-inventory-management-software-order-management-system-business-process-stool-text-logo.png"
                 alt="Logo"
