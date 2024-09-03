@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
-
 import { IoCaretDownSharp } from "react-icons/io5";
 import { MdDelete } from "react-icons/md";
-
 import EditBox from "./EditBox";
 import "./tabletoggle.css";
 
@@ -19,16 +17,17 @@ const TableToggle = () => {
   const [selectedType, setSelectedType] = useState("");
   const [categories, setCategories] = useState([]);
 
-  const fetchData = async () => {
+  // Memoize fetchData using useCallback
+  const fetchData = useCallback(async () => {
     try {
       const response = await axios.get("http://localhost:3500/menu/stocks");
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
+  }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
         "http://localhost:3500/categories/category"
@@ -49,12 +48,12 @@ const TableToggle = () => {
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
     fetchCategories();
-  }, []);
+  }, [fetchData, fetchCategories]);
 
   useEffect(() => {
     let filtered = data;
@@ -153,7 +152,7 @@ const TableToggle = () => {
               >
                 <option value="">FOOD</option>
                 {categories.map((category) => (
-                  <option key={category._id} value={category.name}>
+                  <option key={category._id} value={category.categoryName}>
                     {category.categoryName}
                   </option>
                 ))}
@@ -193,12 +192,11 @@ const TableToggle = () => {
                 <td className="cntr">{item.categoryName || "-"}</td>
                 <td className="cntr">{item._id}</td>
                 <td colSpan={2}>
-                  <button className="cntr" onClick={() => openModal(item)}>
-                    <EditBox
-                      item={selectedItem}
-                      onClose={closeModal}
-                      onEditSuccess={fetchData}
-                    />
+                  <button
+                    className="cntr"
+                    onClick={() => openModal(item)}
+                  >
+                    Edit
                   </button>
 
                   <button
@@ -213,6 +211,15 @@ const TableToggle = () => {
           </tbody>
         )}
       </table>
+
+      {/* Render modal conditionally */}
+      {showModal && (
+        <EditBox
+          item={selectedItem}
+          onClose={closeModal}
+          onEditSuccess={fetchData}
+        />
+      )}
     </div>
   );
 };

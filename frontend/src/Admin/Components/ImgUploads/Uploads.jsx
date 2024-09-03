@@ -9,22 +9,17 @@ const Uploads = () => {
   const [categoryName, setCategoryName] = useState("");
   const [type, setType] = useState("");
   const [image, setImage] = useState(null);
-  const [bannerImage, setBannerImage] = useState(null);
   const [newImage, setNewImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
+  const [bannerImage, setBannerImage] = useState(null);
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
-  const [selectedBanner, setSelectedBanner] = useState(null);
   const [availability, setAvailability] = useState("available");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3500/categories/category"
-        );
-    
+        const response = await axios.get("http://localhost:3500/categories/category");
         if (Array.isArray(response.data)) {
           const uniqueCategories = response.data.reduce((acc, current) => {
             if (!acc.some(cat => cat.categoryName === current.categoryName)) {
@@ -32,7 +27,6 @@ const Uploads = () => {
             }
             return acc;
           }, []);
-    
           setCategories(uniqueCategories);
         } else {
           console.error("Unexpected data structure:", response.data);
@@ -41,13 +35,10 @@ const Uploads = () => {
         console.error("Error fetching categories:", error);
       }
     };
-    
 
     const fetchBanners = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3500/banner/banners"
-        );
+        const response = await axios.get("http://localhost:3500/banner/banners");
         setBanners(response.data);
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -72,42 +63,33 @@ const Uploads = () => {
 
   const handleImageUpload = async (e) => {
     e.preventDefault();
-  
     if (!newImage || !categoryName) {
       setError("Please select an image and enter a category name.");
       return;
     }
-  
+
     const existingCategory = categories.find(cat => cat.categoryName === categoryName);
-  
     if (existingCategory) {
-      alert("Category already exists. Please choose a different category name.");
       setError("Category already exists.");
       return;
     }
-  
-    setUploading(true);
+
     setError("");
-  
+
     const formData = new FormData();
     formData.append("image", newImage);
     formData.append("categoryName", categoryName);
-  
+
     try {
-      const response = await axios.post(
-        "http://localhost:3500/categories/upload",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-  
+      const response = await axios.post("http://localhost:3500/categories/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
       if (response.data.message === "Image uploaded successfully") {
         alert("Category uploaded successfully!");
         setNewImage(null);
         setCategoryName("");
-  
-        const categoryResponse = await axios.get(
-          "http://localhost:3500/categories/category"
-        );
+
+        const categoryResponse = await axios.get("http://localhost:3500/categories/category");
         setCategories(categoryResponse.data);
       } else {
         setError(response.data.message || "Failed to upload image.");
@@ -115,33 +97,27 @@ const Uploads = () => {
     } catch (error) {
       console.error("Error uploading image:", error);
       setError("Failed to upload image.");
-    } finally {
-      setUploading(false);
     }
   };
-  
-  
+
   const handleMenuSubmit = async (e) => {
     e.preventDefault();
     setError("");
-  
+
     const formData = new FormData();
     formData.append("name", itemName);
     formData.append("price", price);
     formData.append("categoryName", categoryName);
     formData.append("type", type);
     formData.append("availability", availability);
-  
+
     if (image) formData.append("image", image);
-  
+
     try {
-      const response = await axios.post(
-        "http://localhost:3500/files/add",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
+      const response = await axios.post("http://localhost:3500/files/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
       alert("Menu upload successful: " + response.data.message);
-      
       setItemName("");
       setPrice("");
       setCategoryName("");
@@ -153,56 +129,44 @@ const Uploads = () => {
       setError("Error uploading menu data.");
     }
   };
-  
 
- const handleBannerSubmit = async (e) => {
-  e.preventDefault();
-  if (!bannerImage) {
-    setError("Please select a banner image.");
-    return;
-  }
-  setError("");
+  const handleBannerSubmit = async (e) => {
+    e.preventDefault();
+    if (!bannerImage) {
+      setError("Please select a banner image.");
+      return;
+    }
+    setError("");
 
-  const formData = new FormData();
-  formData.append("bannerImage", bannerImage);
+    const formData = new FormData();
+    formData.append("bannerImage", bannerImage);
 
-  try {
-    const response = await axios.post(
-      "http://localhost:3500/banner/add",
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-    alert("Banner upload successful: " + response.data.message);
-    
-    setBannerImage(null);
+    try {
+      const response = await axios.post("http://localhost:3500/banner/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      alert("Banner upload successful: " + response.data.message);
+      setBannerImage(null);
 
-    const updatedBanners = await axios.get(
-      "http://localhost:3500/banner/banners"
-    );
-    setBanners(updatedBanners.data);
-  } catch (error) {
-    console.error("Error uploading banner image:", error);
-    setError("Error uploading banner image.");
-  }
-};
-
+      const updatedBanners = await axios.get("http://localhost:3500/banner/banners");
+      setBanners(updatedBanners.data);
+    } catch (error) {
+      console.error("Error uploading banner image:", error);
+      setError("Error uploading banner image.");
+    }
+  };
 
   const handleDeleteCategory = async (categoryId) => {
     if (!categoryId) {
-      console.error("No category ID provided for deletion");
       setError("No category ID provided.");
       return;
     }
 
     try {
-      await axios.post(
-        `http://localhost:3500/categories/category/${categoryId}`
-      );
+      await axios.post(`http://localhost:3500/categories/category/${categoryId}`);
       alert("Category deleted successfully!");
 
-      const response = await axios.get(
-        "http://localhost:3500/categories/category"
-      );
+      const response = await axios.get("http://localhost:3500/categories/category");
       setCategories(response.data);
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -212,7 +176,6 @@ const Uploads = () => {
 
   const handleDeleteBanner = async (fileId) => {
     if (!fileId) {
-      console.error("No banner ID provided for deletion");
       setError("No banner ID provided.");
       return;
     }
@@ -221,9 +184,7 @@ const Uploads = () => {
       await axios.delete(`http://localhost:3500/banner/banners/${fileId}`);
       alert("Banner deleted successfully!");
 
-      const updatedBanners = await axios.get(
-        "http://localhost:3500/banner/banners"
-      );
+      const updatedBanners = await axios.get("http://localhost:3500/banner/banners");
       setBanners(updatedBanners.data);
     } catch (error) {
       console.error("Error deleting banner:", error);
@@ -233,8 +194,9 @@ const Uploads = () => {
 
   return (
     <>
-    <NavBar/>
+      <NavBar />
       <div className="upload-page">
+        {error && <div className="error-message">{error}</div>}
         <div className="upload-section">
           <div className="menu-add">
             <h2>ADD MENU ITEM</h2>
@@ -341,9 +303,7 @@ const Uploads = () => {
                 <button
                   type="submit"
                   disabled={!isBannerFormValid()}
-                  className={`submit-button ${
-                    isBannerFormValid() ? "active" : ""
-                  }`}
+                  className={`submit-button ${isBannerFormValid() ? "active" : ""}`}
                 >
                   Submit Banner
                 </button>
@@ -395,9 +355,7 @@ const Uploads = () => {
               <button
                 type="submit"
                 disabled={!isCategoryFormValid()}
-                className={`submit-button ${
-                  isCategoryFormValid() ? "active" : ""
-                }`}
+                className={`submit-button ${isCategoryFormValid() ? "active" : ""}`}
               >
                 Submit Category
               </button>
@@ -406,18 +364,14 @@ const Uploads = () => {
           <div className="uploadbox category-list">
             <h2>Existing Categories</h2>
             <div className="categories-list">
-              {categories.map((cat) => {
-                return (
-                  <div key={cat._id} className="category-item">
-                    <p>{cat.categoryName}</p>
-                    <button
-                      onClick={() => handleDeleteCategory(cat.categoryId)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                );
-              })}
+              {categories.map((cat) => (
+                <div key={cat._id} className="category-item">
+                  <p>{cat.categoryName}</p>
+                  <button onClick={() => handleDeleteCategory(cat._id)}>
+                    Delete
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>

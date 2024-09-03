@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCartItems,
   setSelectedIndex,
-  handleFinishClick,
   resetSelectedIndex,
   updateCartItems
 } from "../../../SlicesFolder/Slices/kitchenSlice";

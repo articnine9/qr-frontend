@@ -1,7 +1,4 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-// import { setPhoneNumber, setName, setIsLogin } from '../../../../../FrontEnd/src/Routes/Slices/userLoginSlice';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './phoneNumberLogin.css';
 
