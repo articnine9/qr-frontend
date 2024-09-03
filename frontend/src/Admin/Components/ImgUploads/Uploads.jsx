@@ -19,10 +19,12 @@ const Uploads = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:3500/categories/category");
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/categories/category"
+        );
         if (Array.isArray(response.data)) {
           const uniqueCategories = response.data.reduce((acc, current) => {
-            if (!acc.some(cat => cat.categoryName === current.categoryName)) {
+            if (!acc.some((cat) => cat.categoryName === current.categoryName)) {
               acc.push(current);
             }
             return acc;
@@ -38,7 +40,9 @@ const Uploads = () => {
 
     const fetchBanners = async () => {
       try {
-        const response = await axios.get("http://localhost:3500/banner/banners");
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/banner/banners"
+        );
         setBanners(response.data);
       } catch (error) {
         console.error("Error fetching banners:", error);
@@ -68,7 +72,9 @@ const Uploads = () => {
       return;
     }
 
-    const existingCategory = categories.find(cat => cat.categoryName === categoryName);
+    const existingCategory = categories.find(
+      (cat) => cat.categoryName === categoryName
+    );
     if (existingCategory) {
       setError("Category already exists.");
       return;
@@ -81,15 +87,21 @@ const Uploads = () => {
     formData.append("categoryName", categoryName);
 
     try {
-      const response = await axios.post("http://localhost:3500/categories/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      const response = await axios.post(
+        "https://qr-backend-application.onrender.com/categories/upload",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       if (response.data.message === "Image uploaded successfully") {
         alert("Category uploaded successfully!");
         setNewImage(null);
         setCategoryName("");
 
-        const categoryResponse = await axios.get("http://localhost:3500/categories/category");
+        const categoryResponse = await axios.get(
+          "https://qr-backend-application.onrender.com/categories/category"
+        );
         setCategories(categoryResponse.data);
       } else {
         setError(response.data.message || "Failed to upload image.");
@@ -114,9 +126,13 @@ const Uploads = () => {
     if (image) formData.append("image", image);
 
     try {
-      const response = await axios.post("http://localhost:3500/files/add", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      const response = await axios.post(
+        "https://qr-backend-application.onrender.com/files/add",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       alert("Menu upload successful: " + response.data.message);
       setItemName("");
       setPrice("");
@@ -142,13 +158,19 @@ const Uploads = () => {
     formData.append("bannerImage", bannerImage);
 
     try {
-      const response = await axios.post("http://localhost:3500/banner/add", formData, {
-        headers: { "Content-Type": "multipart/form-data" }
-      });
+      const response = await axios.post(
+        "https://qr-backend-application.onrender.com/banner/add",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       alert("Banner upload successful: " + response.data.message);
       setBannerImage(null);
 
-      const updatedBanners = await axios.get("http://localhost:3500/banner/banners");
+      const updatedBanners = await axios.get(
+        "https://qr-backend-application.onrender.com/banner/banners"
+      );
       setBanners(updatedBanners.data);
     } catch (error) {
       console.error("Error uploading banner image:", error);
@@ -163,10 +185,14 @@ const Uploads = () => {
     }
 
     try {
-      await axios.post(`http://localhost:3500/categories/category/${categoryId}`);
+      await axios.post(
+        `https://qr-backend-application.onrender.com/categories/category/${categoryId}`
+      );
       alert("Category deleted successfully!");
 
-      const response = await axios.get("http://localhost:3500/categories/category");
+      const response = await axios.get(
+        "https://qr-backend-application.onrender.com/categories/category"
+      );
       setCategories(response.data);
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -181,10 +207,14 @@ const Uploads = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:3500/banner/banners/${fileId}`);
+      await axios.delete(
+        `https://qr-backend-application.onrender.com/banner/banners/${fileId}`
+      );
       alert("Banner deleted successfully!");
 
-      const updatedBanners = await axios.get("http://localhost:3500/banner/banners");
+      const updatedBanners = await axios.get(
+        "https://qr-backend-application.onrender.com/banner/banners"
+      );
       setBanners(updatedBanners.data);
     } catch (error) {
       console.error("Error deleting banner:", error);
@@ -303,7 +333,9 @@ const Uploads = () => {
                 <button
                   type="submit"
                   disabled={!isBannerFormValid()}
-                  className={`submit-button ${isBannerFormValid() ? "active" : ""}`}
+                  className={`submit-button ${
+                    isBannerFormValid() ? "active" : ""
+                  }`}
                 >
                   Submit Banner
                 </button>
@@ -355,7 +387,9 @@ const Uploads = () => {
               <button
                 type="submit"
                 disabled={!isCategoryFormValid()}
-                className={`submit-button ${isCategoryFormValid() ? "active" : ""}`}
+                className={`submit-button ${
+                  isCategoryFormValid() ? "active" : ""
+                }`}
               >
                 Submit Category
               </button>

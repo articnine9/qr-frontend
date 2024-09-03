@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -18,22 +17,24 @@ const OfflinePayment = () => {
 
     const fetchCartItems = async () => {
       try {
-        const response = await axios.get("http://localhost:3500/cart/items");
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/cart/items"
+        );
         const cartItems = response.data;
-        
+
         const itemsForTable = cartItems
-          .filter(item => item.tableNumber === currentTableNumber)
-          .flatMap(item => item.items);
+          .filter((item) => item.tableNumber === currentTableNumber)
+          .flatMap((item) => item.items);
 
         const aggregated = itemsForTable.reduce((acc, item) => {
-          const existingItem = acc.find(i => i.name === item.name);
+          const existingItem = acc.find((i) => i.name === item.name);
           if (existingItem) {
             existingItem.count += item.count;
             existingItem.total += Number(item.price) * item.count;
           } else {
             acc.push({
               ...item,
-              price: Number(item.price), 
+              price: Number(item.price),
               total: Number(item.price) * item.count,
             });
           }
@@ -44,7 +45,6 @@ const OfflinePayment = () => {
 
         const total = aggregated.reduce((total, item) => total + item.total, 0);
         setTotalPrice(total);
-
       } catch (error) {
         console.error("Error fetching cart items: ", error);
       }
@@ -81,7 +81,9 @@ const OfflinePayment = () => {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan="3" className="total-label">Total</td>
+            <td colSpan="3" className="total-label">
+              Total
+            </td>
             <td className="total-price">${totalPrice.toFixed(2)}</td>
           </tr>
         </tfoot>
@@ -94,4 +96,3 @@ const OfflinePayment = () => {
 };
 
 export default OfflinePayment;
-

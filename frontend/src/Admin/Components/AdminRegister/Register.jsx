@@ -53,7 +53,10 @@ const Register = () => {
     if (!validateForm()) return;
 
     try {
-      await axios.post("http://localhost:3500/user/", value);
+      await axios.post(
+        "https://qr-backend-application.onrender.com/user/",
+        value
+      );
       setValue({
         name: "",
         email: "",
@@ -65,9 +68,9 @@ const Register = () => {
     }
   };
 
-  const handleBack=()=>{
-    navigate('/')
-  }
+  const handleBack = () => {
+    navigate("/");
+  };
 
   return (
     <>
@@ -96,8 +99,12 @@ const Register = () => {
               value={value.password}
               onChange={handleChange}
             />
-            <button type="submit" className="reg-button">Register</button>
-            <button onClick={handleBack} className="back-button">Back</button>
+            <button type="submit" className="reg-button">
+              Register
+            </button>
+            <button onClick={handleBack} className="back-button">
+              Back
+            </button>
           </form>
         </div>
       </div>

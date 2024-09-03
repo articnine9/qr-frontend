@@ -51,7 +51,9 @@ const Login = () => {
     if (!validateForm()) return;
 
     try {
-      let response = await axios.get("http://localhost:3500/user/login");
+      let response = await axios.get(
+        "https://qr-backend-application.onrender.com/user/login"
+      );
       const login = response.data;
 
       const successLogin = login.find(

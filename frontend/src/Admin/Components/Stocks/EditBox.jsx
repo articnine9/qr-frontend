@@ -18,7 +18,9 @@ const EditBox = ({ args, item }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:3500/categories/category");
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/categories/category"
+        );
         setCategories(response.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -51,14 +53,17 @@ const EditBox = ({ args, item }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3500/menu/edit", {
-        ...formData,
-        _id: item._id, 
-      });
+      const response = await axios.post(
+        "https://qr-backend-application.onrender.com/menu/edit",
+        {
+          ...formData,
+          _id: item._id,
+        }
+      );
 
       if (response.status === 200) {
         alert(response.data.message);
-        toggle(); 
+        toggle();
       } else {
         alert("SORRY, Failed To Update Item");
       }

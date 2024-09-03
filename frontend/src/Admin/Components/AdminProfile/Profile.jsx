@@ -17,7 +17,9 @@ const Profile = () => {
   // Memoize fetchData using useCallback
   const fetchData = useCallback(async () => {
     try {
-      let response = await axios.get("http://localhost:3500/user/login");
+      let response = await axios.get(
+        "https://qr-backend-application.onrender.com/user/login"
+      );
       const Datas = response.data;
       const successData = Datas.find((data) => data.email === emailData);
       setProfile(successData);
@@ -43,10 +45,13 @@ const Profile = () => {
 
   const handleClick = async (_id) => {
     try {
-      await axios.post("http://localhost:3500/user/edit", {
-        _id,
-        ...updatedData,
-      });
+      await axios.post(
+        "https://qr-backend-application.onrender.com/user/edit",
+        {
+          _id,
+          ...updatedData,
+        }
+      );
       fetchData();
     } catch (e) {
       console.log(e);

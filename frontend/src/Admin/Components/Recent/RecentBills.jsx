@@ -11,7 +11,9 @@ const RecentBills = () => {
   useEffect(() => {
     const fetchBills = async () => {
       try {
-        const response = await axios.get("http://localhost:3500/bills/billitems");
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/bills/billitems"
+        );
         setBills(response.data);
       } catch (error) {
         console.error("Error fetching bills:", error);
@@ -49,13 +51,10 @@ const RecentBills = () => {
       };
     }
     const groupedItems = groupItemsByName(bill.items);
-    const existingItems = acc[key].items.reduce(
-      (existing, item) => {
-        existing[item.name] = item;
-        return existing;
-      },
-      {}
-    );
+    const existingItems = acc[key].items.reduce((existing, item) => {
+      existing[item.name] = item;
+      return existing;
+    }, {});
 
     for (const itemName in groupedItems) {
       if (existingItems[itemName]) {
@@ -78,96 +77,96 @@ const RecentBills = () => {
 
   return (
     <>
-    <NavBar/>
-    <div className="recent-page">
-      <div className="recent-section">
-        <div className="cntnts">
-          {Object.keys(groupedBills).length > 0 ? (
-            Object.keys(groupedBills).map((key) => {
-              const {
-                items,
-                tableNumber,
-                customerName,
-                customerPhone,
-                date,
-                time,
-                billId,
-                billStatus,
-              } = groupedBills[key];
+      <NavBar />
+      <div className="recent-page">
+        <div className="recent-section">
+          <div className="cntnts">
+            {Object.keys(groupedBills).length > 0 ? (
+              Object.keys(groupedBills).map((key) => {
+                const {
+                  items,
+                  tableNumber,
+                  customerName,
+                  customerPhone,
+                  date,
+                  time,
+                  billId,
+                  billStatus,
+                } = groupedBills[key];
 
-              const totalPrice = items.reduce((sum, item) => {
-                const price = item.price || 0;
-                return sum + price * item.count;
-              }, 0);
+                const totalPrice = items.reduce((sum, item) => {
+                  const price = item.price || 0;
+                  return sum + price * item.count;
+                }, 0);
 
-              return (
-                <div key={key} className="bill-box">
-                  <div className="detail-sec">
-                    <button
-                      className="btn"
-                      onClick={() => handleToggleVisibility(key)}
-                    >
-                      <IoCaretDownSharp />
-                    </button>
-                    <span>Table NO: {tableNumber}</span>
-                    <span>Restaurant Name ETC</span>
-                    <span>Date: {date}</span>
-                    <span>Time: {time}</span>
-                  </div>
-
-                  {visibleTables[key] && (
-                    <div className="bill-details">
-                      <div className="bill-header">
-                        <h6>
-                          Customer Details - Name: {customerName}, Phone Number:{" "}
-                          {customerPhone}
-                        </h6>
-                        <span>Bill No: {billId}</span>
-                        <span>Bill Status: {billStatus}</span>
-                      </div>
-
-                      <table className="bills">
-                        <thead className="bg-success text-light">
-                          <tr>
-                            <th>S.NO</th>
-                            <th>MENU NAME</th>
-                            <th>PRICE</th>
-                            <th>COUNT</th>
-                            <th>FINAL PRICE</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {items.map((item, index) => {
-                            const finalPrice = item.price * item.count;
-                            return (
-                              <tr key={index} className="bill-item">
-                                <td>{index + 1}</td>
-                                <td>{item.name}</td>
-                                <td>{item.price.toFixed(2)}</td>
-                                <td>{item.count}</td>
-                                <td>{finalPrice.toFixed(2)}</td>
-                              </tr>
-                            );
-                          })}
-                          <tr className="total-row bg-primary text-light">
-                            <td colSpan="4" className="text-left">
-                              Total:
-                            </td>
-                            <td>{totalPrice.toFixed(2)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                return (
+                  <div key={key} className="bill-box">
+                    <div className="detail-sec">
+                      <button
+                        className="btn"
+                        onClick={() => handleToggleVisibility(key)}
+                      >
+                        <IoCaretDownSharp />
+                      </button>
+                      <span>Table NO: {tableNumber}</span>
+                      <span>Restaurant Name ETC</span>
+                      <span>Date: {date}</span>
+                      <span>Time: {time}</span>
                     </div>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <div className="text-center">No bills available</div>
-          )}
+
+                    {visibleTables[key] && (
+                      <div className="bill-details">
+                        <div className="bill-header">
+                          <h6>
+                            Customer Details - Name: {customerName}, Phone
+                            Number: {customerPhone}
+                          </h6>
+                          <span>Bill No: {billId}</span>
+                          <span>Bill Status: {billStatus}</span>
+                        </div>
+
+                        <table className="bills">
+                          <thead className="bg-success text-light">
+                            <tr>
+                              <th>S.NO</th>
+                              <th>MENU NAME</th>
+                              <th>PRICE</th>
+                              <th>COUNT</th>
+                              <th>FINAL PRICE</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map((item, index) => {
+                              const finalPrice = item.price * item.count;
+                              return (
+                                <tr key={index} className="bill-item">
+                                  <td>{index + 1}</td>
+                                  <td>{item.name}</td>
+                                  <td>{item.price.toFixed(2)}</td>
+                                  <td>{item.count}</td>
+                                  <td>{finalPrice.toFixed(2)}</td>
+                                </tr>
+                              );
+                            })}
+                            <tr className="total-row bg-primary text-light">
+                              <td colSpan="4" className="text-left">
+                                Total:
+                              </td>
+                              <td>{totalPrice.toFixed(2)}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center">No bills available</div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import "./adminOrder.css";
 import axios from "axios";
@@ -16,7 +15,9 @@ const AdminOrder = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:3500/menu/stocks");
+      const response = await axios.get(
+        "https://qr-backend-application.onrender.com/menu/stocks"
+      );
       const dataWithAvailability = response.data.map((item) => ({
         ...item,
         availability: "available",
@@ -30,7 +31,7 @@ const AdminOrder = () => {
   const fetchCategories = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3500/categories/category"
+        "https://qr-backend-application.onrender.com/categories/category"
       );
 
       if (Array.isArray(response.data)) {
@@ -148,7 +149,7 @@ const AdminOrder = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3500/cart/cartitems",
+        "https://qr-backend-application.onrender.com/cart/cartitems",
         orderData
       );
       if (response.status === 201) {
@@ -165,107 +166,109 @@ const AdminOrder = () => {
   };
 
   return (
-  <>
-  <NavBar/>
-    <div className="adminOrder-page">
-      <div className="adminOrder-section">
-        <div className="box">
-          <div className="navBar">
-            <select
-              name="table"
-              id="table"
-              className="category-dropdown"
-              onChange={handleTableChange}
-              value={selectedTable}
-            >
-              <option value="">Select Table</option>
-              {[...Array(10).keys()].map((i) => (
-                <option
-                  key={i + 1}
-                  value={`Table ${i + 1}`}
-                  style={{
-                    backgroundColor: tablesWithOrders.has(i + 1)
-                      ? "#4f4f4f"
-                      : "transparent",
-                    color: tablesWithOrders.has(i + 1) ? "white" : "black",
-                  }}
-                >
-                  Table {i + 1}
-                </option>
+    <>
+      <NavBar />
+      <div className="adminOrder-page">
+        <div className="adminOrder-section">
+          <div className="box">
+            <div className="navBar">
+              <select
+                name="table"
+                id="table"
+                className="category-dropdown"
+                onChange={handleTableChange}
+                value={selectedTable}
+              >
+                <option value="">Select Table</option>
+                {[...Array(10).keys()].map((i) => (
+                  <option
+                    key={i + 1}
+                    value={`Table ${i + 1}`}
+                    style={{
+                      backgroundColor: tablesWithOrders.has(i + 1)
+                        ? "#4f4f4f"
+                        : "transparent",
+                      color: tablesWithOrders.has(i + 1) ? "white" : "black",
+                    }}
+                  >
+                    Table {i + 1}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="category"
+                id="category"
+                className="category-dropdown"
+                onChange={handleCategoryChange}
+                value={selectedCategory}
+              >
+                <option value="">FOOD</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat.name}>
+                    {cat.categoryName}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="type"
+                id="type"
+                className="category-dropdown"
+                onChange={handleTypeChange}
+                value={selectedType}
+              >
+                <option value="">TYPE</option>
+                <option value="Veg">Veg</option>
+                <option value="Non Veg">Non Veg</option>
+              </select>
+            </div>
+
+            <div className="menu-sec flex">
+              {filteredData.map((item) => (
+                <div className="menu-button" key={item._id}>
+                  <button onClick={() => handleAddItem(item)}>
+                    {item.name}
+                  </button>
+                </div>
               ))}
-            </select>
-
-            <select
-              name="category"
-              id="category"
-              className="category-dropdown"
-              onChange={handleCategoryChange}
-              value={selectedCategory}
-            >
-              <option value="">FOOD</option>
-              {categories.map((cat) => (
-                <option key={cat._id} value={cat.name}>
-                  {cat.categoryName}
-                </option>
-              ))}
-            </select>
-
-            <select
-              name="type"
-              id="type"
-              className="category-dropdown"
-              onChange={handleTypeChange}
-              value={selectedType}
-            >
-              <option value="">TYPE</option>
-              <option value="Veg">Veg</option>
-              <option value="Non Veg">Non Veg</option>
-            </select>
+            </div>
           </div>
 
-          <div className="menu-sec flex">
-            {filteredData.map((item) => (
-              <div className="menu-button" key={item._id}>
-                <button onClick={() => handleAddItem(item)}>{item.name}</button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="box">
-          <div className="navBar">
-            <button onClick={handleClearTable}>Clear Table</button>
-            <button onClick={handleOrderNow}>Order Now</button>
-          </div>
-          <table className="table">
-            <thead className="primary">
-              <tr>
-                <th>QTY</th>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.values(selectedItems).map((item) => (
-                <tr key={item._id}>
-                  <td>{item.count}</td>
-                  <td>{item.name}</td>
-                  <td>{item.type}</td>
-                  <td>{item.categoryName}</td>
-                  <td>
-                    <button onClick={() => handleRemove(item._id)}>
-                      Remove
-                    </button>
-                  </td>
+          <div className="box">
+            <div className="navBar">
+              <button onClick={handleClearTable}>Clear Table</button>
+              <button onClick={handleOrderNow}>Order Now</button>
+            </div>
+            <table className="table">
+              <thead className="primary">
+                <tr>
+                  <th>QTY</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {Object.values(selectedItems).map((item) => (
+                  <tr key={item._id}>
+                    <td>{item.count}</td>
+                    <td>{item.name}</td>
+                    <td>{item.type}</td>
+                    <td>{item.categoryName}</td>
+                    <td>
+                      <button onClick={() => handleRemove(item._id)}>
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
 };

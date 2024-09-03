@@ -20,7 +20,9 @@ const TableToggle = () => {
   // Memoize fetchData using useCallback
   const fetchData = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:3500/menu/stocks");
+      const response = await axios.get(
+        "https://qr-backend-application.onrender.com/menu/stocks"
+      );
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -30,7 +32,7 @@ const TableToggle = () => {
   const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3500/categories/category"
+        "https://qr-backend-application.onrender.com/categories/category"
       );
 
       if (Array.isArray(response.data)) {
@@ -99,7 +101,10 @@ const TableToggle = () => {
 
   const handleDelete = async (_id) => {
     try {
-      await axios.post("http://localhost:3500/menu/delete", { _id });
+      await axios.post(
+        "https://qr-backend-application.onrender.com/menu/delete",
+        { _id }
+      );
       setData(data.filter((item) => item._id !== _id));
       alert("Item Removed");
     } catch (error) {
@@ -192,10 +197,7 @@ const TableToggle = () => {
                 <td className="cntr">{item.categoryName || "-"}</td>
                 <td className="cntr">{item._id}</td>
                 <td colSpan={2}>
-                  <button
-                    className="cntr"
-                    onClick={() => openModal(item)}
-                  >
+                  <button className="cntr" onClick={() => openModal(item)}>
                     Edit
                   </button>
 

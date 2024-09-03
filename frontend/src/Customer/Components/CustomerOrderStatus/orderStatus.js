@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import './orderStatus.css'; // Ensure this file includes the necessary CSS
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import "./orderStatus.css"; // Ensure this file includes the necessary CSS
 
 const OrderStatus = () => {
   const [currentTableOrders, setCurrentTableOrders] = useState([]);
@@ -8,24 +8,27 @@ const OrderStatus = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const currentTableNumber = localStorage.getItem('currentTableNumber');
+  const currentTableNumber = localStorage.getItem("currentTableNumber");
 
   useEffect(() => {
     const fetchCartItems = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:3500/cart/items');
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/cart/items"
+        );
         const cartItems = response.data;
 
-        console.log('cartItems',cartItems);
-        
+        console.log("cartItems", cartItems);
 
         if (cartItems.length > 0 && currentTableNumber) {
           // Filter cart items based on currentTableNumber
-          const filteredItems = cartItems.filter(item => item.tableNumber === parseInt(currentTableNumber));
+          const filteredItems = cartItems.filter(
+            (item) => item.tableNumber === parseInt(currentTableNumber)
+          );
 
           // Extract items from each filtered item
-          const itemsFromFiltered = filteredItems.flatMap(item => item.items);
+          const itemsFromFiltered = filteredItems.flatMap((item) => item.items);
 
           // Set the state for current table orders if needed
           if (filteredItems.length > 0) {
@@ -67,13 +70,21 @@ const OrderStatus = () => {
             {allItemsFromFiltered.length > 0 ? (
               allItemsFromFiltered.map((foodItem, index) => (
                 <div key={index} className="col-md-4 mb-4">
-                  <div 
-                    className={`card ${foodItem.status === 'finished' ? 'bg-success text-light' : 'bg-danger text-light'}`}
+                  <div
+                    className={`card ${
+                      foodItem.status === "finished"
+                        ? "bg-success text-light"
+                        : "bg-danger text-light"
+                    }`}
                   >
                     <div className="card-body">
                       <h5 className="card-title">{foodItem.name}</h5>
-                      <p className="card-text"><strong>Count:</strong> {foodItem.count}</p>
-                      <p className="card-text"><strong>Status:</strong> {foodItem.status}</p>
+                      <p className="card-text">
+                        <strong>Count:</strong> {foodItem.count}
+                      </p>
+                      <p className="card-text">
+                        <strong>Status:</strong> {foodItem.status}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -91,4 +102,3 @@ const OrderStatus = () => {
 };
 
 export default OrderStatus;
-

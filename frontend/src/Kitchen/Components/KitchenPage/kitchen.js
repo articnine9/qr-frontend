@@ -4,47 +4,51 @@ import {
   fetchCartItems,
   setSelectedIndex,
   resetSelectedIndex,
-  updateCartItems
+  updateCartItems,
 } from "../../../SlicesFolder/Slices/kitchenSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./kitchen.css";
 import KitchenNavBar from "../KitchenNavbar/kitchenNavbar";
-import axios from 'axios';
-
-
+import axios from "axios";
 
 const KitchenPage = () => {
   const dispatch = useDispatch();
-  const {  selectedIndex, updatedItems, loading, error } = useSelector((state) => state.cart);
-  const [itemStatuses, setItemStatuses] = useState({ all: [], few: [], none: [] });
+  const { selectedIndex, updatedItems, loading, error } = useSelector(
+    (state) => state.cart
+  );
+  const [itemStatuses, setItemStatuses] = useState({
+    all: [],
+    few: [],
+    none: [],
+  });
   const [pendingUpdateIndex, setPendingUpdateIndex] = useState(null); // State for pending updates
 
-  const[cartItems,setCartItems] = useState([])
+  const [cartItems, setCartItems] = useState([]);
 
-
- 
   useEffect(() => {
     const fetchCartItems = async () => {
-     
-        const response = await axios.get('http://localhost:3500/cart/items');
-        setCartItems(response.data); // Store response data in state
-       
-       
-        console.log('Cart items fetched:', response.data); // Log the response data
-      } 
-   
+      const response = await axios.get(
+        "https://qr-backend-application.onrender.com/cart/items"
+      );
+      setCartItems(response.data); // Store response data in state
+
+      console.log("Cart items fetched:", response.data); // Log the response data
+    };
+
     fetchCartItems();
   }, []);
-  
- 
 
   // Update item statuses when cartItems change
   useEffect(() => {
     const statuses = { all: [], few: [], none: [] };
 
-    cartItems.forEach(item => {
-      const allFinished = item.items.every(foodItem => foodItem.status === 'finished');
-      const anyFinished = item.items.some(foodItem => foodItem.status === 'finished');
+    cartItems.forEach((item) => {
+      const allFinished = item.items.every(
+        (foodItem) => foodItem.status === "finished"
+      );
+      const anyFinished = item.items.some(
+        (foodItem) => foodItem.status === "finished"
+      );
 
       if (allFinished) statuses.all.push(item._id);
       else if (anyFinished) statuses.few.push(item._id);
@@ -63,7 +67,7 @@ const KitchenPage = () => {
   useEffect(() => {
     if (pendingUpdateIndex !== null && selectedIndex !== null) {
       const updated = updatedItems.map((item, index) =>
-        index === pendingUpdateIndex ? { ...item, status: 'finished' } : item
+        index === pendingUpdateIndex ? { ...item, status: "finished" } : item
       );
 
       const cartItemId = cartItems[selectedIndex]._id;
@@ -76,7 +80,10 @@ const KitchenPage = () => {
           setPendingUpdateIndex(null); // Reset pending update index
         })
         .catch((error) => {
-          console.error('Failed to update cart:', error.response ? error.response.data : error.message);
+          console.error(
+            "Failed to update cart:",
+            error.response ? error.response.data : error.message
+          );
           setPendingUpdateIndex(null); // Reset pending update index even if there's an error
         });
     }
@@ -100,11 +107,15 @@ const KitchenPage = () => {
     return "";
   };
 
-  const filteredCartItems = cartItems.filter(item => !item.items.every((_, idx) => updatedItems[idx]?.status === "finished"));
+  const filteredCartItems = cartItems.filter(
+    (item) =>
+      !item.items.every((_, idx) => updatedItems[idx]?.status === "finished")
+  );
   const selectedItem = selectedIndex !== null ? cartItems[selectedIndex] : null;
 
   if (loading) return <div className="text-center my-4">Loading...</div>;
-  if (error) return <div className="text-center my-4 text-danger">Error: {error}</div>;
+  if (error)
+    return <div className="text-center my-4 text-danger">Error: {error}</div>;
 
   return (
     <>
@@ -149,12 +160,24 @@ const KitchenPage = () => {
                     <div className="row">
                       {updatedItems.map((foodItem, idx) => (
                         <div key={idx} className="col-md-4 mb-4">
-                          <div className={`card ${foodItem.status === "finished" ? "bg-success text-light" : "bg-danger text-white"}`}>
+                          <div
+                            className={`card ${
+                              foodItem.status === "finished"
+                                ? "bg-success text-light"
+                                : "bg-danger text-white"
+                            }`}
+                          >
                             <div className="card-body">
-                              <h5 className="card-title" style={{ fontSize: "1.5rem" }}>
+                              <h5
+                                className="card-title"
+                                style={{ fontSize: "1.5rem" }}
+                              >
                                 {foodItem.name}
                               </h5>
-                              <p className="card-text" style={{ fontSize: "1.25rem" }}>
+                              <p
+                                className="card-text"
+                                style={{ fontSize: "1.25rem" }}
+                              >
                                 <strong>Count:</strong> {foodItem.count}
                               </p>
                               <p className="card-text">
@@ -187,14 +210,6 @@ const KitchenPage = () => {
 };
 
 export default KitchenPage;
-
-
-
-
-
-
-
-
 
 // import React, { useEffect, useState } from "react";
 // import { useDispatch, useSelector } from "react-redux";
@@ -396,64 +411,3 @@ export default KitchenPage;
 // };
 
 // export default KitchenPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

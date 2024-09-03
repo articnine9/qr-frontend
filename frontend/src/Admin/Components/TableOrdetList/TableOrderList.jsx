@@ -17,27 +17,32 @@ const TableOrderList = () => {
   const tableNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
 
   // Memoize handleFilterChange using useCallback
-  const handleFilterChange = useCallback((e) => {
-    const table = e.target.value;
-    setSelectedTable(table);
+  const handleFilterChange = useCallback(
+    (e) => {
+      const table = e.target.value;
+      setSelectedTable(table);
 
-    if (table === "") {
-      const allItems = data.flatMap((table) => table.items);
-      setFilteredData(aggregateItems(allItems));
-    } else {
-      const tableItems = data
-        .filter((t) => t.tableNumber === parseInt(table))
-        .flatMap((t) => t.items);
+      if (table === "") {
+        const allItems = data.flatMap((table) => table.items);
+        setFilteredData(aggregateItems(allItems));
+      } else {
+        const tableItems = data
+          .filter((t) => t.tableNumber === parseInt(table))
+          .flatMap((t) => t.items);
 
-      setFilteredData(aggregateItems(tableItems));
-    }
-  }, [data]);
+        setFilteredData(aggregateItems(tableItems));
+      }
+    },
+    [data]
+  );
 
   // Memoize fetchData using useCallback
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get("http://localhost:3500/cart/items");
+      const response = await axios.get(
+        "https://qr-backend-application.onrender.com/cart/items"
+      );
 
       if (Array.isArray(response.data)) {
         setData(response.data);
@@ -81,15 +86,18 @@ const TableOrderList = () => {
     const date = new Date().toLocaleDateString();
 
     try {
-      await axios.post("http://localhost:3500/bills/paid", {
-        tableNumber: parseInt(selectedTable, 10),
-        items: filteredData.map((item) => ({
-          ...item,
-          price: parseFloat(item.price),
-        })),
-        paidTime: time,
-        paidDate: date,
-      });
+      await axios.post(
+        "https://qr-backend-application.onrender.com/bills/paid",
+        {
+          tableNumber: parseInt(selectedTable, 10),
+          items: filteredData.map((item) => ({
+            ...item,
+            price: parseFloat(item.price),
+          })),
+          paidTime: time,
+          paidDate: date,
+        }
+      );
       alert("The Bill has been Paid");
       fetchData();
     } catch (error) {
@@ -133,7 +141,9 @@ const TableOrderList = () => {
                             backgroundColor: tablesWithData.has(tableNumber)
                               ? "darkgray"
                               : "transparent",
-                            color: tablesWithData.has(tableNumber) ? "white" : "black",
+                            color: tablesWithData.has(tableNumber)
+                              ? "white"
+                              : "black",
                           }}
                         >
                           Table {tableNumber}
@@ -183,7 +193,9 @@ const TableOrderList = () => {
                           <td className="cntr">
                             ${Number(item.price).toFixed(2) || "0.00"}
                           </td>
-                          <td className="cntr">{item.status || "Not Served"}</td>
+                          <td className="cntr">
+                            {item.status || "Not Served"}
+                          </td>
                         </tr>
                       ))}
                       <tr>
