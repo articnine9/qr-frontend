@@ -179,13 +179,14 @@ const Uploads = () => {
   };
 
   const handleDeleteCategory = async (categoryId) => {
+    console.log("Deleting category ID:", categoryId);
     if (!categoryId) {
       setError("No category ID provided.");
       return;
     }
 
     try {
-      await axios.post(
+      await axios.delete(
         `https://qr-backend-application.onrender.com/categories/category/${categoryId}`
       );
       alert("Category deleted successfully!");
