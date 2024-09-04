@@ -60,7 +60,7 @@ const EditBox = ({ args, item }) => {
           _id: item._id,
         }
       );
-
+  
       if (response.status === 200) {
         alert(response.data.message);
         toggle();
@@ -68,10 +68,11 @@ const EditBox = ({ args, item }) => {
         alert("SORRY, Failed To Update Item");
       }
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error:", error.response ? error.response.data : error.message);
       alert("An error occurred");
     }
   };
+  
 
   return (
     <div>
@@ -85,7 +86,7 @@ const EditBox = ({ args, item }) => {
         backdropTransition={{ timeout: 800 }}
         {...args}
       >
-        <ModalHeader toggle={toggle}>Edit Items</ModalHeader>
+        <ModalHeader toggle={toggle}>Edit Item</ModalHeader>
         <ModalBody>
           <form onSubmit={handleSubmit} className="edit-form">
             <label>Name</label>
@@ -136,7 +137,7 @@ const EditBox = ({ args, item }) => {
             >
               <option value="">Select a category</option>
               {categories.map((cat) => (
-                <option key={cat._id} value={cat.name}>
+                <option key={cat._id} value={cat.categoryName}>
                   {cat.categoryName}
                 </option>
               ))}
@@ -144,8 +145,11 @@ const EditBox = ({ args, item }) => {
           </form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleSubmit} type="submit">
+          <Button color="primary" onClick={handleSubmit}>
             Update
+          </Button>
+          <Button color="secondary" onClick={toggle}>
+            Cancel
           </Button>
         </ModalFooter>
       </Modal>

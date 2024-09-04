@@ -7,14 +7,18 @@ import axios from 'axios';
 export const updateCartItems = createAsyncThunk(
   'cart/updateCartItems',
   async ({ id, updatedItems }, { dispatch }) => {
-    await axios.put(
-      `https://qr-backend-application.onrender.com/cart/cartitems/${id}`,
-      { updatedItems }
-    );
-    // Fetch updated cart items after the update is complete
-    dispatch(fetchCartItems());
+    try {
+      await axios.put(
+        `https://qr-backend-application.onrender.com/cart/cartitems/${id}`,
+        { updatedItems }
+      );
+      dispatch(fetchCartItems()); // Refresh the cart items after updating
+    } catch (error) {
+      throw new Error(error.response ? error.response.data : error.message);
+    }
   }
 );
+
 
 export const fetchCartItems = createAsyncThunk(
   'cart/fetchCartItems',

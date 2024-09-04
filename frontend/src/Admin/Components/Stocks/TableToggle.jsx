@@ -12,7 +12,6 @@ const TableToggle = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [categories, setCategories] = useState([]);
@@ -111,16 +110,6 @@ const TableToggle = () => {
     }
   };
 
-  const openModal = (item) => {
-    setSelectedItem(item);
-    setShowModal(true);
-  };
-
-  const closeModal = () => {
-    setSelectedItem(null);
-    setShowModal(false);
-  };
-
   const handleToggle = () => {
     setShowTable((prevShowTable) => !prevShowTable);
     fetchData();
@@ -196,14 +185,12 @@ const TableToggle = () => {
                 <td className="cntr">{item.categoryName || "-"}</td>
                 <td className="cntr">{item._id}</td>
                 <td colSpan={2}>
-                  <button className="cntr" onClick={() => openModal(item)}>
-                    {showModal && (
-                      <EditBox
-                        item={selectedItem}
-                        onClose={closeModal}
-                        onEditSuccess={fetchData}
-                      />
-                    )}
+                  <button className="cntr" onClick={() => setSelectedItem(item)}>
+                    <EditBox
+                      item={selectedItem}
+                      onClose={() => setSelectedItem(null)}
+                      onEditSuccess={fetchData}
+                    />
                   </button>
 
                   <button
@@ -218,8 +205,6 @@ const TableToggle = () => {
           </tbody>
         )}
       </table>
-
-      {/* Render modal conditionally */}
     </div>
   );
 };
