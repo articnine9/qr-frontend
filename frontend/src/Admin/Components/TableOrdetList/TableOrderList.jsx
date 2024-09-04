@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./tableorderlist.css";
 import { IoCaretDownSharp } from "react-icons/io5";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,27 +16,6 @@ const TableOrderList = () => {
 
   const tableNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
 
-  // Memoize handleFilterChange using useCallback
-  const handleFilterChange = useCallback(
-    (e) => {
-      const table = e.target.value;
-      setSelectedTable(table);
-
-      if (table === "") {
-        const allItems = data.flatMap((table) => table.items);
-        setFilteredData(aggregateItems(allItems));
-      } else {
-        const tableItems = data
-          .filter((t) => t.tableNumber === parseInt(table))
-          .flatMap((t) => t.items);
-
-        setFilteredData(aggregateItems(tableItems));
-      }
-    },
-    [data]
-  );
-
-  // Memoize fetchData using useCallback
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -59,7 +38,7 @@ const TableOrderList = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedTable, handleFilterChange]);
+  }, [selectedTable]);
 
   useEffect(() => {
     fetchData();
@@ -75,6 +54,22 @@ const TableOrderList = () => {
       return acc;
     }, {});
     return Object.values(aggregated);
+  };
+
+  const handleFilterChange = (e) => {
+    const table = e.target.value;
+    setSelectedTable(table);
+
+    if (table === "") {
+      const allItems = data.flatMap((table) => table.items);
+      setFilteredData(aggregateItems(allItems));
+    } else {
+      const tableItems = data
+        .filter((t) => t.tableNumber === parseInt(table))
+        .flatMap((t) => t.items);
+
+      setFilteredData(aggregateItems(tableItems));
+    }
   };
 
   const handleToggle = () => {

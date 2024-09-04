@@ -15,7 +15,9 @@ const KitchenNavBar = () => {
   const goToOrders = () => {
     navigate('/kitchenPage'); // Replace with your orders page route
   };
-
+const goToAdmin=()=>{
+  navigate("/stocks")
+}
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Navbar.Brand>
@@ -29,6 +31,9 @@ const KitchenNavBar = () => {
           </Button>
           <Button variant="outline-light" onClick={goToOrders}>
             Orders
+          </Button>
+          <Button variant="outline-light" onClick={goToAdmin}>
+            Admin
           </Button>
         </Nav>
       </Navbar.Collapse>
