@@ -11,11 +11,9 @@ const Uploads = () => {
   const [image, setImage] = useState(null);
   const [bannerImage, setBannerImage] = useState(null);
   const [newImage, setNewImage] = useState(null);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
-  const [selectedBanner, setSelectedBanner] = useState(null);
   const [availability, setAvailability] = useState("available");
 
   useEffect(() => {
@@ -89,8 +87,7 @@ const Uploads = () => {
       return;
     }
 
-    setUploading(true);
-    setError("");
+;
 
     const formData = new FormData();
     formData.append("image", newImage);
@@ -118,9 +115,7 @@ const Uploads = () => {
     } catch (error) {
       console.error("Error uploading image:", error);
       setError("Failed to upload image.");
-    } finally {
-      setUploading(false);
-    }
+    } 
   };
 
   const handleMenuSubmit = async (e) => {
@@ -422,6 +417,7 @@ const Uploads = () => {
               })}
             </div>
           </div>
+          {error && <div className="error-message">{error}</div>}
         </div>
       </div>
     </>

@@ -54,6 +54,11 @@ const NavBar = () => {
                    AdminOrder
                 </Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/kitchenPage">
+                   Kitchen
+                </Link>
+              </li>
             </ul>
 
             <div className="logout-sec">
