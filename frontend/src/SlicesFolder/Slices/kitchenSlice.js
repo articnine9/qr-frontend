@@ -1,10 +1,11 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 // Thunks
 
+
 export const updateCartItems = createAsyncThunk(
-  "cart/updateCartItems",
+  'cart/updateCartItems',
   async ({ id, updatedItems }, { dispatch }) => {
     await axios.put(
       `https://qr-backend-application.onrender.com/cart/cartitems/${id}`,
@@ -16,18 +17,17 @@ export const updateCartItems = createAsyncThunk(
 );
 
 export const fetchCartItems = createAsyncThunk(
-  "cart/fetchCartItems",
+  'cart/fetchCartItems',
   async () => {
-    const response = await axios.get(
-      "https://qr-backend-application.onrender.com/cart/items"
-    );
+    const response = await axios.get('https://qr-backend-application.onrender.com/cart/items');
     return response.data;
   }
 );
 
+
 // Slice
 const cartSlice = createSlice({
-  name: "cart",
+  name: 'cart',
   initialState: {
     cartItems: [],
     selectedIndex: null,
@@ -43,7 +43,7 @@ const cartSlice = createSlice({
         if (selectedItem && selectedItem.items) {
           state.updatedItems = selectedItem.items.map((item) => ({
             ...item,
-            status: item.status || "not finished",
+            status: item.status || 'not finished',
           }));
         }
       }
@@ -53,7 +53,7 @@ const cartSlice = createSlice({
       if (foodItemIndex >= 0 && foodItemIndex < state.updatedItems.length) {
         state.updatedItems[foodItemIndex] = {
           ...state.updatedItems[foodItemIndex],
-          status: "finished",
+          status: 'finished',
         };
       }
     },
@@ -89,6 +89,5 @@ const cartSlice = createSlice({
   },
 });
 
-export const { setSelectedIndex, handleFinishClick, resetSelectedIndex } =
-  cartSlice.actions;
+export const { setSelectedIndex, handleFinishClick, resetSelectedIndex } = cartSlice.actions;
 export default cartSlice.reducer;
