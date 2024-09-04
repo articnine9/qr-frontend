@@ -22,17 +22,17 @@ const Uploads = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3500/categories/category"
+          "https://qr-backend-application.onrender.com/categories/category"
         );
-    
+
         if (Array.isArray(response.data)) {
           const uniqueCategories = response.data.reduce((acc, current) => {
-            if (!acc.some(cat => cat.categoryName === current.categoryName)) {
+            if (!acc.some((cat) => cat.categoryName === current.categoryName)) {
               acc.push(current);
             }
             return acc;
           }, []);
-    
+
           setCategories(uniqueCategories);
         } else {
           console.error("Unexpected data structure:", response.data);
@@ -41,12 +41,11 @@ const Uploads = () => {
         console.error("Error fetching categories:", error);
       }
     };
-    
 
     const fetchBanners = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3500/banner/banners"
+          "https://qr-backend-application.onrender.com/banner/banners"
         );
         setBanners(response.data);
       } catch (error) {
@@ -72,41 +71,45 @@ const Uploads = () => {
 
   const handleImageUpload = async (e) => {
     e.preventDefault();
-  
+
     if (!newImage || !categoryName) {
       setError("Please select an image and enter a category name.");
       return;
     }
-  
-    const existingCategory = categories.find(cat => cat.categoryName === categoryName);
-  
+
+    const existingCategory = categories.find(
+      (cat) => cat.categoryName === categoryName
+    );
+
     if (existingCategory) {
-      alert("Category already exists. Please choose a different category name.");
+      alert(
+        "Category already exists. Please choose a different category name."
+      );
       setError("Category already exists.");
       return;
     }
-  
+
     setUploading(true);
     setError("");
-  
+
     const formData = new FormData();
     formData.append("image", newImage);
     formData.append("categoryName", categoryName);
-  
+
     try {
       const response = await axios.post(
-        "http://localhost:3500/categories/upload",
+        "https://qr-backend-application.onrender.com/categories/upload",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-  
+
       if (response.data.message === "Image uploaded successfully") {
         alert("Category uploaded successfully!");
         setNewImage(null);
         setCategoryName("");
-  
+
         const categoryResponse = await axios.get(
-          "http://localhost:3500/categories/category"
+          "https://qr-backend-application.onrender.com/categories/category"
         );
         setCategories(categoryResponse.data);
       } else {
@@ -119,29 +122,28 @@ const Uploads = () => {
       setUploading(false);
     }
   };
-  
-  
+
   const handleMenuSubmit = async (e) => {
     e.preventDefault();
     setError("");
-  
+
     const formData = new FormData();
     formData.append("name", itemName);
     formData.append("price", price);
     formData.append("categoryName", categoryName);
     formData.append("type", type);
     formData.append("availability", availability);
-  
+
     if (image) formData.append("image", image);
-  
+
     try {
       const response = await axios.post(
-        "http://localhost:3500/files/add",
+        "https://qr-backend-application.onrender.com/files/add",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       alert("Menu upload successful: " + response.data.message);
-      
+
       setItemName("");
       setPrice("");
       setCategoryName("");
@@ -153,39 +155,37 @@ const Uploads = () => {
       setError("Error uploading menu data.");
     }
   };
-  
 
- const handleBannerSubmit = async (e) => {
-  e.preventDefault();
-  if (!bannerImage) {
-    setError("Please select a banner image.");
-    return;
-  }
-  setError("");
+  const handleBannerSubmit = async (e) => {
+    e.preventDefault();
+    if (!bannerImage) {
+      setError("Please select a banner image.");
+      return;
+    }
+    setError("");
 
-  const formData = new FormData();
-  formData.append("bannerImage", bannerImage);
+    const formData = new FormData();
+    formData.append("bannerImage", bannerImage);
 
-  try {
-    const response = await axios.post(
-      "http://localhost:3500/banner/add",
-      formData,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
-    alert("Banner upload successful: " + response.data.message);
-    
-    setBannerImage(null);
+    try {
+      const response = await axios.post(
+        "https://qr-backend-application.onrender.com/banner/add",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      alert("Banner upload successful: " + response.data.message);
 
-    const updatedBanners = await axios.get(
-      "http://localhost:3500/banner/banners"
-    );
-    setBanners(updatedBanners.data);
-  } catch (error) {
-    console.error("Error uploading banner image:", error);
-    setError("Error uploading banner image.");
-  }
-};
+      setBannerImage(null);
 
+      const updatedBanners = await axios.get(
+        "https://qr-backend-application.onrender.com/banner/banners"
+      );
+      setBanners(updatedBanners.data);
+    } catch (error) {
+      console.error("Error uploading banner image:", error);
+      setError("Error uploading banner image.");
+    }
+  };
 
   const handleDeleteCategory = async (categoryId) => {
     if (!categoryId) {
@@ -196,12 +196,12 @@ const Uploads = () => {
 
     try {
       await axios.post(
-        `http://localhost:3500/categories/category/${categoryId}`
+        `https://qr-backend-application.onrender.com/categories/category/${categoryId}`
       );
       alert("Category deleted successfully!");
 
       const response = await axios.get(
-        "http://localhost:3500/categories/category"
+        "https://qr-backend-application.onrender.com/categories/category"
       );
       setCategories(response.data);
     } catch (error) {
@@ -218,11 +218,13 @@ const Uploads = () => {
     }
 
     try {
-      await axios.delete(`http://localhost:3500/banner/banners/${fileId}`);
+      await axios.delete(
+        `https://qr-backend-application.onrender.com/banner/banners/${fileId}`
+      );
       alert("Banner deleted successfully!");
 
       const updatedBanners = await axios.get(
-        "http://localhost:3500/banner/banners"
+        "https://qr-backend-application.onrender.com/banner/banners"
       );
       setBanners(updatedBanners.data);
     } catch (error) {
@@ -233,7 +235,7 @@ const Uploads = () => {
 
   return (
     <>
-    <NavBar/>
+      <NavBar />
       <div className="upload-page">
         <div className="upload-section">
           <div className="menu-add">
