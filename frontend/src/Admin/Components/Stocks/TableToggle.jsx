@@ -17,7 +17,6 @@ const TableToggle = () => {
   const [selectedType, setSelectedType] = useState("");
   const [categories, setCategories] = useState([]);
 
-  // Memoize fetchData using useCallback
   const fetchData = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -198,7 +197,13 @@ const TableToggle = () => {
                 <td className="cntr">{item._id}</td>
                 <td colSpan={2}>
                   <button className="cntr" onClick={() => openModal(item)}>
-                    Edit
+                    {showModal && (
+                      <EditBox
+                        item={selectedItem}
+                        onClose={closeModal}
+                        onEditSuccess={fetchData}
+                      />
+                    )}
                   </button>
 
                   <button
@@ -215,13 +220,6 @@ const TableToggle = () => {
       </table>
 
       {/* Render modal conditionally */}
-      {showModal && (
-        <EditBox
-          item={selectedItem}
-          onClose={closeModal}
-          onEditSuccess={fetchData}
-        />
-      )}
     </div>
   );
 };
