@@ -21,7 +21,7 @@ const KitchenPage = () => {
     few: [],
     none: [],
   });
-  const [pendingUpdateIndex, setPendingUpdateIndex] = useState(null);
+  const [pendingUpdateIndex, setPendingUpdateIndex] = useState(null); 
 
   const [cartItems, setCartItems] = useState([]);
 
@@ -35,6 +35,7 @@ const KitchenPage = () => {
 
     fetchCartItems();
   }, []);
+
 
   useEffect(() => {
     const statuses = { all: [], few: [], none: [] };
@@ -53,14 +54,15 @@ const KitchenPage = () => {
     });
 
     setItemStatuses(statuses);
-  }, [cartItems]);
+  }, [cartItems]); 
 
+ 
   useEffect(() => {
     dispatch(fetchCartItems());
   }, [dispatch]);
 
   const handleFinishClickWrapper = (foodItemIndex) => {
-    setPendingUpdateIndex(foodItemIndex);
+    setPendingUpdateIndex(foodItemIndex); 
   };
 
   useEffect(() => {
@@ -80,7 +82,7 @@ const KitchenPage = () => {
         })
         .catch((error) => {
           console.error("Failed to update cart:", error.message);
-          setPendingUpdateIndex(null);
+          setPendingUpdateIndex(null); 
         });
     }
   }, [pendingUpdateIndex, selectedIndex, updatedItems, cartItems, dispatch]);
@@ -92,7 +94,7 @@ const KitchenPage = () => {
   };
 
   const getCardClass = (itemId) => {
-    if (itemStatuses.all.includes(itemId)) return "bg-success";
+    if (itemStatuses.all.includes(itemId)) return "bg-success"; 
     if (itemStatuses.few.includes(itemId)) return "bg-warning";
     if (itemStatuses.none.includes(itemId)) return "bg-danger";
     return "";
@@ -109,49 +111,50 @@ const KitchenPage = () => {
     return <div className="text-center my-4 text-danger">Error: {error}</div>;
 
   return (
-    <>
+     <>
       <KitchenNavBar />
-      <div className="containers">
-        <div className="left-box">
-          <span className="order-header">OrderList</span>
-          <div className="orders-list">
-            {selectedItem === null ? (
-              filteredCartItems.length > 0 ? (
-                filteredCartItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="order-box"
-                    onClick={() => handleCardClick(index)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className={`card ${getCardClass(item._id)}`}>
-                      <div className="card-body text-center">
-                        <p
-                          className="card-text"
-                          style={{ fontSize: "1.25rem" }}
-                        >
-                          Table Number: {item.tableNumber}
-                        </p>
+      <div className="container">
+        <div className="box">
+          <div className="flex-shrink-0" style={{ width: "45%" }}>
+            <div className="row">
+              {selectedItem === null ? (
+                filteredCartItems.length > 0 ? (
+                  filteredCartItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className="col-12 mb-4"
+                      onClick={() => handleCardClick(index)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className={`card ${getCardClass(item._id)}`}>
+                        <div className="card-body text-center">
+                          <p
+                            className="card-text"
+                            style={{ fontSize: "1.25rem" }}
+                          >
+                            Table Number: {item.tableNumber}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))
+                ) : (
+                  <div className="text-center">All items are finished.</div>
+                )
               ) : (
-                <div className="text-center">All items are finished.</div>
-              )
-            ) : (
-              <div className="text-center">
-                <button
-                  className="btn btn-primary mb-4"
-                  onClick={handleBackToList}
-                >
-                  Back to List
-                </button>
-              </div>
-            )}
+                <div className="text-center">
+                  <button
+                    className="btn btn-primary mb-4"
+                    onClick={handleBackToList}
+                  >
+                    Back to List
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        <div className="right-box">
+        <div className="box">
           {selectedItem !== null && (
             <div className="flex-grow-1" style={{ width: "70%" }}>
               <div style={{ maxWidth: "800px", margin: "auto" }}>

@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Thunks
+
 
 
 export const updateCartItems = createAsyncThunk(
@@ -12,7 +12,7 @@ export const updateCartItems = createAsyncThunk(
         `https://qr-backend-application.onrender.com/cart/cartitems/${id}`,
         { updatedItems }
       );
-      dispatch(fetchCartItems()); // Refresh the cart items after updating
+      dispatch(fetchCartItems()); 
     } catch (error) {
       throw new Error(error.response ? error.response.data : error.message);
     }
@@ -47,7 +47,7 @@ const cartSlice = createSlice({
         if (selectedItem && selectedItem.items) {
           state.updatedItems = selectedItem.items.map((item) => ({
             ...item,
-            status: item.status || 'not finished',
+            status: item.status || 'not served',
           }));
         }
       }
@@ -57,7 +57,7 @@ const cartSlice = createSlice({
       if (foodItemIndex >= 0 && foodItemIndex < state.updatedItems.length) {
         state.updatedItems[foodItemIndex] = {
           ...state.updatedItems[foodItemIndex],
-          status: 'finished',
+          status: 'served',
         };
       }
     },
@@ -84,7 +84,6 @@ const cartSlice = createSlice({
       })
       .addCase(updateCartItems.fulfilled, (state, action) => {
         state.loading = false;
-        // Optionally handle the response data or updates here
       })
       .addCase(updateCartItems.rejected, (state, action) => {
         state.error = action.error.message;

@@ -49,7 +49,7 @@ const menuSlice = createSlice({
       state.showBottomNavbar = orderedItems.length > 0;
     },
     setAdditionalItems: (state, action) => {
-      // New action
+
       state.additionalItems = action.payload;
     },
   },
@@ -67,26 +67,3 @@ export const {
 } = menuSlice.actions;
 
 export default menuSlice.reducer;
-
-// const handleAddToCart = async () => {
-//     if (orderedFood.length > 0) {
-//       try {
-//         const cartData = {
-//           tableNumber: Number(selectedTable),
-//           items: updatedItems.filter(item => item.count > 0).map(item => ({
-//             name: item.name,
-//             count: Number(item.count),
-//             price: Number(item.price),
-//             categoryName: item.categoryName
-//           }))
-//         };
-//         console.log('cartData',cartData);
-
-//         await axios.post('https://qr-backend-application.onrender.com/cart/cartitems', cartData);
-//         // Redirect or handle after successful POST request
-//         navigate('/addToCart');
-//       } catch (error) {
-//         console.error("Error adding items to cart: ", error);
-//       }
-//     }
-//   };

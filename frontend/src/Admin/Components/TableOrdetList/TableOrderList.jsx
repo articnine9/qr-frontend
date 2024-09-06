@@ -16,27 +16,23 @@ const TableOrderList = () => {
 
   const tableNumbers = Array.from({ length: 10 }, (_, i) => i + 1);
 
-  // Memoize handleFilterChange using useCallback
-  const handleFilterChange = useCallback(
-    (e) => {
-      const table = e.target.value;
-      setSelectedTable(table);
+  const handleFilterChange = (e) => {
+    const table = e.target.value;
+    setSelectedTable(table);
 
-      if (table === "") {
-        const allItems = data.flatMap((table) => table.items);
-        setFilteredData(aggregateItems(allItems));
-      } else {
-        const tableItems = data
-          .filter((t) => t.tableNumber === parseInt(table))
-          .flatMap((t) => t.items);
+    let tableItems = [];
+    if (table === "") {
+      const allItems = data.flatMap((table) => table.items);
+      tableItems = aggregateItems(allItems);
+    } else {
+      tableItems = data
+        .filter((t) => t.tableNumber === parseInt(table))
+        .flatMap((t) => t.items);
+      tableItems = aggregateItems(tableItems);
+    }
+    setFilteredData(tableItems);
+  };
 
-        setFilteredData(aggregateItems(tableItems));
-      }
-    },
-    [data]
-  );
-
-  // Memoize fetchData using useCallback
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -48,7 +44,18 @@ const TableOrderList = () => {
         setData(response.data);
         const tables = new Set(response.data.map((table) => table.tableNumber));
         setTablesWithData(tables);
-        handleFilterChange({ target: { value: selectedTable } });
+        
+        let tableItems = [];
+        if (selectedTable === "") {
+          const allItems = response.data.flatMap((table) => table.items);
+          tableItems = aggregateItems(allItems);
+        } else {
+          tableItems = response.data
+            .filter((t) => t.tableNumber === parseInt(selectedTable))
+            .flatMap((t) => t.items);
+          tableItems = aggregateItems(tableItems);
+        }
+        setFilteredData(tableItems);
       } else {
         console.error("Unexpected data structure:", response.data);
         setError("Unexpected data structure.");
@@ -59,11 +66,12 @@ const TableOrderList = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedTable, handleFilterChange]);
+  }, [selectedTable]); 
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+  }, [fetchData]); 
+
 
   const aggregateItems = (items) => {
     const aggregated = items.reduce((acc, item) => {
@@ -99,7 +107,7 @@ const TableOrderList = () => {
         }
       );
       alert("The Bill has been Paid");
-      fetchData();
+      fetchData(); 
     } catch (error) {
       console.error("Error in making payments:", error);
       alert("Failed to mark as paid");
@@ -107,7 +115,7 @@ const TableOrderList = () => {
   };
 
   const areAllItemsFinished = () => {
-    return filteredData.every((item) => item.status === "finished");
+    return filteredData.every((item) => item.status === "served");
   };
 
   return (
@@ -175,7 +183,7 @@ const TableOrderList = () => {
                 ) : showTable ? (
                   selectedTable === "" ? (
                     <tr>
-                      <td colSpan="7" className="text-center">
+                      <td colSpan="8" className="text-center">
                         --- NO TABLE HAS BEEN CHOSEN ---
                       </td>
                     </tr>
@@ -213,7 +221,7 @@ const TableOrderList = () => {
                     </>
                   ) : (
                     <tr>
-                      <td colSpan="7" className="text-center">
+                      <td colSpan="8" className="text-center">
                         --- NO ORDERS YET ---
                       </td>
                     </tr>

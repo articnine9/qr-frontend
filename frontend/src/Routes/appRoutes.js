@@ -9,8 +9,8 @@ import Profile from "../Admin/Components/AdminProfile/Profile";
 import RecentBills from "../Admin/Components/Recent/RecentBills";
 import AdminOrder from "../Admin/Components/AdminOrder/AdminOrder";
 
-import KitchenPage from '../Kitchen/Components/KitchenPage/kitchen';
-import KitchenStocks from '../Kitchen/Components/KitchenStocks/kitchenStocks';
+import KitchenPage from "../Kitchen/Components/KitchenPage/kitchen";
+import KitchenStocks from "../Kitchen/Components/KitchenStocks/kitchenStocks";
 
 const AppRoutes = () => (
   <Router>
@@ -24,10 +24,8 @@ const AppRoutes = () => (
       <Route path="/recent" element={<RecentBills />} />
       <Route path="/adminOrder" element={<AdminOrder />} />
 
-
-
-      <Route path="/kitchenPage" element={<KitchenPage/>}/>
-         <Route path="/kitchenStocks" element={<KitchenStocks/>}/> 
+      <Route path="/kitchenPage" element={<KitchenPage />} />
+      <Route path="/kitchenStocks" element={<KitchenStocks />} />
     </Routes>
   </Router>
 );
