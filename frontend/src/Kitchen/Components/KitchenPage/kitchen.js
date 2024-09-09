@@ -63,12 +63,10 @@ const KitchenPage = () => {
       );
 
       const payload = { id: cartItemId, updatedItems };
-      console.log("Updating with payload:", payload); // Debugging line
 
       dispatch(updateCartItems(payload))
         .unwrap()
         .then(() => {
-          // Refresh the data after update
           axios
             .get("https://qr-backend-application.onrender.com/cart/items")
             .then((response) => {
@@ -100,7 +98,7 @@ const KitchenPage = () => {
     return "";
   };
 
-  const filteredCartItems = cartItems; // Show all items regardless of their status
+  const filteredCartItems = cartItems; 
 
   const selectedItem = selectedIndex !== null ? cartItems[selectedIndex] : null;
 

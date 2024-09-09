@@ -96,7 +96,7 @@ const AdminOrder = () => {
         newItems[item._id] = { 
           ...item, 
           count: 1,
-          status: "not served" // Add this line
+          status: "not served" 
         };
       }
       setTablesWithOrders((prev) => new Set([...prev, item.tableNumber]));
