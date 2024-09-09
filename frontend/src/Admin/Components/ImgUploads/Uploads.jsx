@@ -15,6 +15,7 @@ const Uploads = () => {
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
   const [availability, setAvailability] = useState("available");
+  const [comboItems, setComboItems] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -30,7 +31,6 @@ const Uploads = () => {
             }
             return acc;
           }, []);
-
           setCategories(uniqueCategories);
         } else {
           console.error("Unexpected data structure:", response.data);
@@ -55,16 +55,23 @@ const Uploads = () => {
     fetchBanners();
   }, []);
 
-  const isMenuFormValid = () => {
-    return itemName && price && categoryName && type && image;
+  const handleAddRow = () => {
+    setComboItems([
+      ...comboItems,
+      { id: Date.now(), name: "", quantity: "", type: "" },
+    ]);
   };
 
-  const isCategoryFormValid = () => {
-    return categoryName && newImage;
+  const handleRowChange = (e, index) => {
+    const { name, quantity, type } = e.target;
+    const updatedItems = [...comboItems];
+    updatedItems[index] = { ...updatedItems[index], [name]: quantity, type };
+    setComboItems(updatedItems);
   };
 
-  const isBannerFormValid = () => {
-    return bannerImage;
+  const handleDeleteRow = (index) => {
+    const updatedItems = comboItems.filter((_, i) => i !== index);
+    setComboItems(updatedItems);
   };
 
   const handleImageUpload = async (e) => {
@@ -86,8 +93,6 @@ const Uploads = () => {
       setError("Category already exists.");
       return;
     }
-
-;
 
     const formData = new FormData();
     formData.append("image", newImage);
@@ -115,7 +120,7 @@ const Uploads = () => {
     } catch (error) {
       console.error("Error uploading image:", error);
       setError("Failed to upload image.");
-    } 
+    }
   };
 
   const handleMenuSubmit = async (e) => {
@@ -228,6 +233,24 @@ const Uploads = () => {
     }
   };
 
+  const isMenuFormValid = () => {
+    return (
+      itemName.trim() &&
+      price.trim() &&
+      categoryName.trim() &&
+      type.trim() &&
+      image
+    );
+  };
+
+  const isBannerFormValid = () => {
+    return bannerImage;
+  };
+
+  const isCategoryFormValid = () => {
+    return newImage && categoryName.trim();
+  };
+
   return (
     <>
       <NavBar />
@@ -299,7 +322,6 @@ const Uploads = () => {
                   </label>
                 </div>
               </div>
-
               <div>
                 <input
                   type="file"
@@ -309,7 +331,6 @@ const Uploads = () => {
                   onChange={(e) => setImage(e.target.files[0])}
                 />
               </div>
-
               <button
                 type="submit"
                 disabled={!isMenuFormValid()}
@@ -319,7 +340,92 @@ const Uploads = () => {
               </button>
             </form>
           </div>
-
+          <div className="combo-add">
+            <h2>ADD COMBO</h2>
+            <form onSubmit={handleBannerSubmit}>
+              <div className="form-group">
+                <label htmlFor="categoryName">Combo Name:</label>
+                <input
+                  type="text"
+                  id="categoryName"
+                  name="categoryName"
+                  value={categoryName}
+                  onChange={(e) => setCategoryName(e.target.value)}
+                  required
+                />
+                <label htmlFor="bannerImage">Select Combo Image:</label>
+                <input
+                  type="file"
+                  id="bannerImage"
+                  name="bannerImage"
+                  accept="image/*"
+                  onChange={(e) => setBannerImage(e.target.files[0])}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!isBannerFormValid()}
+                className={`submit-button ${
+                  isBannerFormValid() ? "active" : ""
+                }`}
+              >
+                Submit Combo
+              </button>
+            </form>
+            <div className="dynamic-table">
+              <h3>Combo Items</h3>
+              <button onClick={handleAddRow}>Add Row</button>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Quantity</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comboItems.map((item, index) => (
+                    <tr key={item.id}>
+                      <td>
+                        <input
+                          type="text"
+                          name="name"
+                          value={item.name}
+                          onChange={(e) => handleRowChange(e, index)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          name="name"
+                          value={item.name}
+                          onChange={(e) => handleRowChange(e, index)}
+                        />
+                      </td>
+                      <select
+                        id="type"
+                        name="type"
+                        value={type}
+                        onChange={(e) => setType(e.target.value)}
+                        required
+                      >
+                        <option value="">Select a type</option>
+                        <option value="Veg">Veg</option>
+                        <option value="Non Veg">Non Veg</option>
+                      </select>
+                      <td>
+                        <button onClick={() => handleDeleteRow(index)}>
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
           <div className="banner-add flex">
             <div className="bannerbox">
               <h2>ADD BANNER</h2>
@@ -346,7 +452,6 @@ const Uploads = () => {
                 </button>
               </form>
             </div>
-
             <div className="bannerbox">
               <h2>Existing Banners</h2>
               <div className="banners-list">
@@ -362,7 +467,6 @@ const Uploads = () => {
             </div>
           </div>
         </div>
-
         <div className="upload-section category">
           <div className="uploadbox">
             <h2>Upload New Category Image</h2>
@@ -403,18 +507,14 @@ const Uploads = () => {
           <div className="uploadbox category-list">
             <h2>Existing Categories</h2>
             <div className="categories-list">
-              {categories.map((cat) => {
-                return (
-                  <div key={cat._id} className="category-item">
-                    <p>{cat.categoryName}</p>
-                    <button
-                      onClick={() => handleDeleteCategory(cat.categoryId)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                );
-              })}
+              {categories.map((cat) => (
+                <div key={cat._id} className="category-item">
+                  <p>{cat.categoryName}</p>
+                  <button onClick={() => handleDeleteCategory(cat._id)}>
+                    Delete
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
           {error && <div className="error-message">{error}</div>}

@@ -8,16 +8,20 @@ export const updateCartItems = createAsyncThunk(
   'cart/updateCartItems',
   async ({ id, updatedItems }, { dispatch }) => {
     try {
-      await axios.put(
+      console.log("Payload being sent:", { id, updatedItems }); // Debugging line
+      const response = await axios.put(
         `https://qr-backend-application.onrender.com/cart/cartitems/${id}`,
-        { updatedItems }
+        { updatedItems } // Adjust this if necessary based on server's expected format
       );
+      console.log("Response:", response); // Debugging line
       dispatch(fetchCartItems()); 
     } catch (error) {
+      console.error("Error response:", error.response); // Log the error response for debugging
       throw new Error(error.response ? error.response.data : error.message);
     }
   }
 );
+
 
 
 export const fetchCartItems = createAsyncThunk(

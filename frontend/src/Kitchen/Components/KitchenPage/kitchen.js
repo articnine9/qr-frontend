@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchCartItems,
-  setSelectedIndex,
-  resetSelectedIndex,
-  updateCartItems,
-} from "../../../SlicesFolder/Slices/kitchenSlice";
+import { setSelectedIndex, updateCartItems } from "../../../SlicesFolder/Slices/kitchenSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./kitchen.css";
 import KitchenNavBar from "../KitchenNavbar/kitchenNavbar";
@@ -13,83 +8,90 @@ import axios from "axios";
 
 const KitchenPage = () => {
   const dispatch = useDispatch();
-  const { selectedIndex, updatedItems, loading, error } = useSelector(
-    (state) => state.cart
-  );
+  const { selectedIndex, loading, error } = useSelector((state) => state.cart);
   const [itemStatuses, setItemStatuses] = useState({
     all: [],
     few: [],
     none: [],
   });
-  const [pendingUpdateIndex, setPendingUpdateIndex] = useState(null);
-
   const [cartItems, setCartItems] = useState([]);
+  const [pendingUpdate, setPendingUpdate] = useState(null);
 
   useEffect(() => {
     const fetchCartItems = async () => {
-      const response = await axios.get(
-        "https://qr-backend-application.onrender.com/cart/items"
-      );
-      setCartItems(response.data);
+      try {
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/cart/items"
+        );
+        setCartItems(response.data);
+      } catch (err) {
+        console.error("Failed to fetch cart items:", err.message);
+      }
     };
 
     fetchCartItems();
   }, []);
 
   useEffect(() => {
-    const statuses = { all: [], few: [], none: [] };
+    if (cartItems.length > 0) {
+      const statuses = { all: [], few: [], none: [] };
 
-    cartItems.forEach((item) => {
-      const allFinished = item.items.every(
-        (foodItem) => foodItem.status === "served"
-      );
-      const anyFinished = item.items.some(
-        (foodItem) => foodItem.status === "served"
-      );
+      cartItems.forEach((item) => {
+        const allFinished = item.items.every(
+          (foodItem) => foodItem.status === "served"
+        );
+        const anyFinished = item.items.some(
+          (foodItem) => foodItem.status === "served"
+        );
 
-      if (allFinished) statuses.all.push(item._id);
-      else if (anyFinished) statuses.few.push(item._id);
-      else statuses.none.push(item._id);
-    });
+        if (allFinished) statuses.all.push(item._id);
+        else if (anyFinished) statuses.few.push(item._id);
+        else statuses.none.push(item._id);
+      });
 
-    setItemStatuses(statuses);
+      setItemStatuses(statuses);
+    }
   }, [cartItems]);
 
   useEffect(() => {
-    dispatch(fetchCartItems());
-  }, [dispatch]);
+    if (pendingUpdate !== null && selectedIndex !== null) {
+      const { foodItemIndex, cartItemId } = pendingUpdate;
 
-  const handleFinishClickWrapper = (foodItemIndex) => {
-    setPendingUpdateIndex(foodItemIndex);
-  };
-
-  useEffect(() => {
-    if (pendingUpdateIndex !== null && selectedIndex !== null) {
-      const updated = updatedItems.map((item, index) =>
-        index === pendingUpdateIndex ? { ...item, status: "served" } : item
+      const cartItem = cartItems[selectedIndex];
+      const updatedItems = cartItem.items.map((item, index) =>
+        index === foodItemIndex ? { ...item, status: "served" } : item
       );
 
-      const cartItemId = cartItems[selectedIndex]._id;
-      const payload = { id: cartItemId, updatedItems: updated };
+      const payload = { id: cartItemId, updatedItems };
+      console.log("Updating with payload:", payload); // Debugging line
 
       dispatch(updateCartItems(payload))
         .unwrap()
         .then(() => {
-          dispatch(fetchCartItems());
-          setPendingUpdateIndex(null);
+          // Refresh the data after update
+          axios
+            .get("https://qr-backend-application.onrender.com/cart/items")
+            .then((response) => {
+              setCartItems(response.data);
+            })
+            .catch((err) => console.error("Failed to refetch cart items:", err.message));
+          setPendingUpdate(null);
         })
         .catch((error) => {
           console.error("Failed to update cart:", error.message);
-          setPendingUpdateIndex(null);
+          setPendingUpdate(null);
         });
     }
-  }, [pendingUpdateIndex, selectedIndex, updatedItems, cartItems, dispatch]);
+  }, [pendingUpdate, selectedIndex, cartItems, dispatch]);
+
+  const handleFinishClick = (foodItemIndex) => {
+    if (selectedIndex !== null) {
+      const cartItemId = cartItems[selectedIndex]._id;
+      setPendingUpdate({ foodItemIndex, cartItemId });
+    }
+  };
 
   const handleCardClick = (index) => dispatch(setSelectedIndex(index));
-
-  const handleBackToList = () => {
-    dispatch(resetSelectedIndex());
-  };
 
   const getCardClass = (itemId) => {
     if (itemStatuses.all.includes(itemId)) return "bg-success";
@@ -98,10 +100,8 @@ const KitchenPage = () => {
     return "";
   };
 
-  const filteredCartItems = cartItems.filter(
-    (item) =>
-      !item.items.every((_, idx) => updatedItems[idx]?.status === "finished")
-  );
+  const filteredCartItems = cartItems; // Show all items regardless of their status
+
   const selectedItem = selectedIndex !== null ? cartItems[selectedIndex] : null;
 
   if (loading) return <div className="text-center my-4">Loading...</div>;
@@ -115,44 +115,33 @@ const KitchenPage = () => {
         <div className="left-box">
           <span className="order-header">OrderList</span>
           <div className="orders-list">
-            {selectedItem === null ? (
-              filteredCartItems.length > 0 ? (
-                filteredCartItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="order-box"
-                    onClick={() => handleCardClick(index)}
-                    style={{ cursor: "pointer" }}
-                  >
-                    <div className={`card ${getCardClass(item._id)}`}>
-                      <div className="card-body text-center">
-                        <p
-                          className="card-text"
-                          style={{ fontSize: "1.25rem" }}
-                        >
-                          Table Number: {item.tableNumber}
-                        </p>
-                      </div>
+            {filteredCartItems.length > 0 ? (
+              filteredCartItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="order-box"
+                  onClick={() => handleCardClick(index)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className={`card ${getCardClass(item._id)}`}>
+                    <div className="card-body text-center">
+                      <p
+                        className="card-text"
+                        style={{ fontSize: "1.25rem" }}
+                      >
+                        Table Number: {item.tableNumber}
+                      </p>
                     </div>
                   </div>
-                ))
-              ) : (
-                <div className="text-center">All items are finished.</div>
-              )
+                </div>
+              ))
             ) : (
-              <div className="text-center">
-                <button
-                  className="btn btn-primary mb-4"
-                  onClick={handleBackToList}
-                >
-                  Back to List
-                </button>
-              </div>
+              <div className="text-center">No orders available</div>
             )}
           </div>
         </div>
         <div className="right-box">
-          {selectedItem !== null && (
+          {selectedItem && (
             <div className="flex-grow-1" style={{ width: "70%" }}>
               <div style={{ maxWidth: "800px", margin: "auto" }}>
                 <div className="card-body">
@@ -161,9 +150,9 @@ const KitchenPage = () => {
                   </p>
                   <div className="mb-4">
                     <h6>Ordered Food Items</h6>
-                    {updatedItems.length > 0 ? (
+                    {selectedItem.items.length > 0 ? (
                       <div className="row">
-                        {updatedItems.map((foodItem, idx) => (
+                        {selectedItem.items.map((foodItem, idx) => (
                           <div key={idx} className="col-md-4 mb-4">
                             <div
                               className={`card ${
@@ -191,9 +180,7 @@ const KitchenPage = () => {
                                 {foodItem.status !== "served" && (
                                   <button
                                     className="btn blinking-button"
-                                    onClick={() =>
-                                      handleFinishClickWrapper(idx)
-                                    }
+                                    onClick={() => handleFinishClick(idx)}
                                   >
                                     Mark as Served
                                   </button>

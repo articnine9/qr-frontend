@@ -1,17 +1,22 @@
 .bg-success {
-  background-color: #28a745 !important;
+  background-color: #2f6b2a !important;
   color: #fff !important;
 }
 
 .bg-danger {
-  background-color: #dc3545 !important;
+  background-color:#792325 !important;
   color: #fff !important;
 }
+.bg-warning{
+  background-color: #c2b71e !important;
+  color: #000 !important;
 
+}
 .bg-light {
   background-color: #f8f9fa !important;
   color: #000 !important;
 }
+
 @keyframes blink {
   0% {
     opacity: 1;
@@ -26,7 +31,7 @@
 
 .blinking-button {
   animation: blink 1s infinite;
-  background-color: red;
+  background-color: #2f6b2a;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -45,7 +50,6 @@
 
 .containers {
   margin-top: 2%;
-  /* border: 1px solid black; */
   height: 89vh;
   width: 100%;
   display: flex;
@@ -61,11 +65,14 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  overflow: scroll;
+  scrollbar-width: none;
 }
 .left-box {
   height: 95%;
   width: 28%;
-  
+  overflow: scroll;
+  scrollbar-width: none;
 }
 .order-box {
   width: 49%;
