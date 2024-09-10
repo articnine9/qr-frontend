@@ -22,6 +22,7 @@ const Uploads = () => {
   const [comboImage, setComboImage] = useState(null);
   const [combos, setCombos] = useState([]);
   const [comboItemType, setComboItemType] = useState({});
+  const [comboPrice, setComboPrice] = useState("");
 
   const imageInputRef = useRef(null);
 
@@ -99,14 +100,19 @@ const Uploads = () => {
   const handleComboSubmit = async (e) => {
     e.preventDefault();
 
-    if (!comboName.trim() || !comboImage) {
-      setError("Please provide both combo name and image.");
+    if (!comboName.trim() || !comboImage || !comboPrice) {
+      setError("Please provide all required fields.");
+      return;
+    }
+    if (!comboItems.every((item) => item.name && item.quantity)) {
+      setError("Please fill out all combo items.");
       return;
     }
 
     const formData = new FormData();
     formData.append("comboName", comboName);
     formData.append("comboImage", comboImage);
+    formData.append("comboPrice", comboPrice);
     formData.append(
       "comboItems",
       JSON.stringify(
@@ -128,6 +134,7 @@ const Uploads = () => {
       );
       alert("Combo added successfully!");
       setComboName("");
+      setComboPrice("");
       setComboImage(null);
       setComboItems([{ id: Date.now(), name: "", quantity: "" }]);
       setComboItemType({});
@@ -351,7 +358,7 @@ const Uploads = () => {
   };
 
   const isComboFormValid = () => {
-    if (!comboName?.trim() || !comboImage) {
+    if (!comboName?.trim() || !comboImage || !comboPrice) {
       return false;
     }
 
@@ -466,6 +473,16 @@ const Uploads = () => {
                   value={comboName}
                   onChange={(e) => setComboName(e.target.value)}
                   placeholder="Enter combo name"
+                />
+              </div>
+              <div>
+                <input
+                  type="number"
+                  id="comboPrice"
+                  name="comboPrice"
+                  value={comboPrice}
+                  onChange={(e) => setComboPrice(e.target.value)}
+                  placeholder="Enter combo price"
                 />
               </div>
               <div>
@@ -655,6 +672,7 @@ const Uploads = () => {
             </ul>
           </div>
         </div>
+        {error && <div className="error-message">{error}</div>}
       </div>
     </>
   );
