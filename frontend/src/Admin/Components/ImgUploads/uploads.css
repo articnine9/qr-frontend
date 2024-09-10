@@ -22,7 +22,7 @@
   border: 1px solid black;
 }
 
-.combo-add {
+.combo-add{
   overflow: scroll;
   scrollbar-width: none;
   scroll-behavior: smooth;
@@ -45,8 +45,12 @@
   align-items: center;
 }
 .uploadbox,
-.bannerbox {
+.bannerbox{
+  height: 95%;
   width: 50%;
+  overflow: scroll;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
 }
 .submit-button {
   background-color: gray;
@@ -71,8 +75,8 @@
   scrollbar-width: none;
   scroll-behavior: smooth;
 }
-.categories-list {
-  height: 250px;
+.category-list {
+  height: 95%;
   overflow-y: scroll;
   scrollbar-width: none;
   scroll-behavior: smooth;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./uploads.css";
 import NavBar from "../AdminPageNavbar/NavBar";
@@ -15,7 +15,15 @@ const Uploads = () => {
   const [categories, setCategories] = useState([]);
   const [banners, setBanners] = useState([]);
   const [availability, setAvailability] = useState("available");
-  const [comboItems, setComboItems] = useState([]);
+  const [comboItems, setComboItems] = useState([
+    { id: Date.now(), name: "", quantity: "" },
+  ]);
+  const [comboName, setComboName] = useState("");
+  const [comboImage, setComboImage] = useState(null);
+  const [combos, setCombos] = useState([]);
+  const [comboItemType, setComboItemType] = useState({});
+
+  const imageInputRef = useRef(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -50,35 +58,114 @@ const Uploads = () => {
         console.error("Error fetching banners:", error);
       }
     };
-
+    const fetchCombos = async () => {
+      try {
+        const response = await axios.get(
+          "https://qr-backend-application.onrender.com/combos/combo"
+        );
+        setCombos(response.data);
+      } catch (error) {
+        console.error("Error fetching combos:", error);
+      }
+    };
+    fetchCombos();
     fetchCategories();
     fetchBanners();
   }, []);
 
   const handleAddRow = () => {
-    setComboItems([
-      ...comboItems,
-      { id: Date.now(), name: "", quantity: "", type: "" },
-    ]);
-  };
-
-  const handleRowChange = (e, index) => {
-    const { name, quantity, type } = e.target;
-    const updatedItems = [...comboItems];
-    updatedItems[index] = { ...updatedItems[index], [name]: quantity, type };
-    setComboItems(updatedItems);
+    setComboItems([...comboItems, { id: Date.now(), name: "", quantity: "" }]);
   };
 
   const handleDeleteRow = (index) => {
     const updatedItems = comboItems.filter((_, i) => i !== index);
     setComboItems(updatedItems);
+    const newComboItemType = { ...comboItemType };
+    delete newComboItemType[index];
+    setComboItemType(newComboItemType);
+  };
+
+  const handleRowChange = (e, index) => {
+    const { name, value } = e.target;
+    const updatedItems = [...comboItems];
+    updatedItems[index] = { ...updatedItems[index], [name]: value };
+    setComboItems(updatedItems);
+    setComboItemType((prevState) => ({
+      ...prevState,
+      [index]: name === "type" ? value : prevState[index],
+    }));
+  };
+
+  const handleComboSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!comboName.trim() || !comboImage) {
+      setError("Please provide both combo name and image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("comboName", comboName);
+    formData.append("comboImage", comboImage);
+    formData.append(
+      "comboItems",
+      JSON.stringify(
+        comboItems.map((item, index) => ({
+          name: item.name,
+          quantity: item.quantity,
+          type: comboItemType[index] || "",
+        }))
+      )
+    );
+
+    try {
+      await axios.post(
+        "https://qr-backend-application.onrender.com/combos/add",
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      alert("Combo added successfully!");
+      setComboName("");
+      setComboImage(null);
+      setComboItems([{ id: Date.now(), name: "", quantity: "" }]);
+      setComboItemType({});
+      setError("");
+      const updatedCombo = await axios.get(
+        "https://qr-backend-application.onrender.com/combos/combo"
+      );
+      setCombos(updatedCombo.data);
+    } catch (error) {
+      console.error(
+        "Error uploading combo data:",
+        error.response ? error.response.data : error.message
+      );
+      setError("Error uploading combo data.");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const response = await axios.delete(
+        `https://qr-backend-application.onrender.com/combos/${id}`
+      );
+      alert(response.data.message);
+      setCombos(combos.filter((combo) => combo._id !== id));
+      const updatedItems = await axios.get(
+        "https://qr-backend-application.onrender.com/combos/combo"
+      );
+      setCombos(updatedItems.data);
+    } catch (error) {
+      console.error("Error deleting combo:", error);
+      alert("Error deleting combo.");
+    }
   };
 
   const handleImageUpload = async (e) => {
     e.preventDefault();
 
-    if (!newImage || !categoryName) {
-      setError("Please select an image and enter a category name.");
+    if (!isCategoryFormValid()) {
       return;
     }
 
@@ -107,9 +194,17 @@ const Uploads = () => {
 
       if (response.data.message === "Image uploaded successfully") {
         alert("Category uploaded successfully!");
-        setNewImage(null);
-        setCategoryName("");
 
+        // Reset form fields and file input
+        setCategoryName("");
+        setNewImage(null);
+
+        // Clear file input value
+        if (imageInputRef.current) {
+          imageInputRef.current.value = ""; // Ensure file input value is cleared
+        }
+
+        // Refresh categories
         const categoryResponse = await axios.get(
           "https://qr-backend-application.onrender.com/categories/category"
         );
@@ -188,6 +283,7 @@ const Uploads = () => {
   };
 
   const handleDeleteCategory = async (categoryId) => {
+    console.log("Deleting category with ID:", categoryId);
     if (!categoryId) {
       console.error("No category ID provided for deletion");
       setError("No category ID provided.");
@@ -195,18 +291,21 @@ const Uploads = () => {
     }
 
     try {
-      await axios.post(
+      await axios.delete(
         `https://qr-backend-application.onrender.com/categories/category/${categoryId}`
       );
       alert("Category deleted successfully!");
-
       const response = await axios.get(
         "https://qr-backend-application.onrender.com/categories/category"
       );
       setCategories(response.data);
     } catch (error) {
       console.error("Error deleting category:", error);
-      setError("Error deleting category.");
+      const errorMessage =
+        error.response?.status === 404
+          ? "Category not found."
+          : "An error occurred while deleting the category.";
+      setError(errorMessage);
     }
   };
 
@@ -251,11 +350,23 @@ const Uploads = () => {
     return newImage && categoryName.trim();
   };
 
+  const isComboFormValid = () => {
+    if (!comboName?.trim() || !comboImage) {
+      return false;
+    }
+
+    return comboItems.every(
+      (item, index) =>
+        item.name?.trim() && item.quantity?.trim() && comboItemType[index]
+    );
+  };
+
   return (
     <>
       <NavBar />
       <div className="upload-page">
         <div className="upload-section">
+          {/* --------------------------------------Menu-------------------------------------------- */}
           <div className="menu-add">
             <h2>ADD MENU ITEM</h2>
             <form onSubmit={handleMenuSubmit}>
@@ -340,92 +451,116 @@ const Uploads = () => {
               </button>
             </form>
           </div>
+
+          {/* --------------------------------------Combo-------------------------------------------- */}
+
+          {/* Combo Form */}
           <div className="combo-add">
             <h2>ADD COMBO</h2>
-            <form onSubmit={handleBannerSubmit}>
-              <div className="form-group">
-                <label htmlFor="categoryName">Combo Name:</label>
+            <form onSubmit={handleComboSubmit}>
+              <div>
                 <input
                   type="text"
-                  id="categoryName"
-                  name="categoryName"
-                  value={categoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
-                  required
+                  id="comboName"
+                  name="comboName"
+                  value={comboName}
+                  onChange={(e) => setComboName(e.target.value)}
+                  placeholder="Enter combo name"
                 />
-                <label htmlFor="bannerImage">Select Combo Image:</label>
+              </div>
+              <div>
                 <input
                   type="file"
-                  id="bannerImage"
-                  name="bannerImage"
+                  id="comboImage"
+                  name="comboImage"
                   accept="image/*"
-                  onChange={(e) => setBannerImage(e.target.files[0])}
-                  required
+                  onChange={(e) => setComboImage(e.target.files[0])}
                 />
+              </div>
+              <div className="dynamic-table">
+                <h3>Combo Items</h3>
+                <button type="button" onClick={handleAddRow}>
+                  Add Row
+                </button>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Quantity</th>
+                      <th>Type</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {comboItems.map((item, index) => (
+                      <tr key={item.id}>
+                        <td>
+                          <input
+                            type="text"
+                            name="name"
+                            value={item.name}
+                            onChange={(e) => handleRowChange(e, index)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            name="quantity"
+                            value={item.quantity}
+                            onChange={(e) => handleRowChange(e, index)}
+                          />
+                        </td>
+                        <td>
+                          <select
+                            name="type"
+                            value={comboItemType[index] || ""}
+                            onChange={(e) => handleRowChange(e, index)}
+                          >
+                            <option value="">Select a type</option>
+                            <option value="Veg">Veg</option>
+                            <option value="Non Veg">Non Veg</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteRow(index)}
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
               <button
                 type="submit"
-                disabled={!isBannerFormValid()}
+                disabled={!isComboFormValid()}
                 className={`submit-button ${
-                  isBannerFormValid() ? "active" : ""
+                  isComboFormValid() ? "active" : ""
                 }`}
               >
                 Submit Combo
               </button>
             </form>
-            <div className="dynamic-table">
-              <h3>Combo Items</h3>
-              <button onClick={handleAddRow}>Add Row</button>
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Quantity</th>
-                    <th>Type</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comboItems.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>
-                        <input
-                          type="text"
-                          name="name"
-                          value={item.name}
-                          onChange={(e) => handleRowChange(e, index)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          name="name"
-                          value={item.name}
-                          onChange={(e) => handleRowChange(e, index)}
-                        />
-                      </td>
-                      <select
-                        id="type"
-                        name="type"
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                        required
-                      >
-                        <option value="">Select a type</option>
-                        <option value="Veg">Veg</option>
-                        <option value="Non Veg">Non Veg</option>
-                      </select>
-                      <td>
-                        <button onClick={() => handleDeleteRow(index)}>
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div>
+              <h2>Combos</h2>
+              <ul>
+                {combos.map((combo) => (
+                  <li key={combo._id}>
+                    <h3>{combo.comboName}</h3>
+                    <button onClick={() => handleDelete(combo._id)}>
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+
+          {/* -----------------------------------------Banner------------------------------------------ */}
+
           <div className="banner-add flex">
             <div className="bannerbox">
               <h2>ADD BANNER</h2>
@@ -467,6 +602,8 @@ const Uploads = () => {
             </div>
           </div>
         </div>
+        {/* ---------------------------------------category----------------------------------------- */}
+
         <div className="upload-section category">
           <div className="uploadbox">
             <h2>Upload New Category Image</h2>
@@ -504,20 +641,19 @@ const Uploads = () => {
               </button>
             </form>
           </div>
-          <div className="uploadbox category-list">
-            <h2>Existing Categories</h2>
-            <div className="categories-list">
+          <div className="category-list">
+            <h2>Categories</h2>
+            <ul>
               {categories.map((cat) => (
-                <div key={cat._id} className="category-item">
-                  <p>{cat.categoryName}</p>
-                  <button onClick={() => handleDeleteCategory(cat._id)}>
+                <li key={cat._id}>
+                  <h3>{cat.categoryName}</h3>
+                  <button onClick={() => handleDeleteCategory(cat.categoryId)}>
                     Delete
                   </button>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
-          {error && <div className="error-message">{error}</div>}
         </div>
       </div>
     </>

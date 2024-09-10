@@ -93,17 +93,16 @@ const AdminOrder = () => {
           count: newItems[item._id].count + 1,
         };
       } else {
-        newItems[item._id] = { 
-          ...item, 
+        newItems[item._id] = {
+          ...item,
           count: 1,
-          status: "not served" 
+          status: "not served",
         };
       }
       setTablesWithOrders((prev) => new Set([...prev, item.tableNumber]));
       return newItems;
     });
   };
-  
 
   const handleRemove = (id) => {
     setSelectedItems((prevItems) => {
