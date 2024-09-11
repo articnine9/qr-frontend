@@ -62,7 +62,7 @@ const Login = () => {
       );
       if (successLogin) {
         localStorage.setItem("emailvalue", loginData.email);
-        nav("/Stocks");
+        nav("/stocks");
       } else {
         alert("User not found");
       }

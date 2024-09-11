@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "./recentbills.css";
 import axios from "axios";
 import { IoCaretDownSharp } from "react-icons/io5";
-import NavBar from "../AdminPageNavbar/NavBar";
 
 const RecentBills = () => {
   const [bills, setBills] = useState([]);
@@ -77,7 +76,7 @@ const RecentBills = () => {
 
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
       <div className="recent-page">
         <div className="recent-section">
           <div className="cntnts">

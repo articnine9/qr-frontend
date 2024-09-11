@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import "./profile.css";
 import axios from "axios";
 import { RiEdit2Fill } from "react-icons/ri";
-import NavBar from "../AdminPageNavbar/NavBar";
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -60,7 +59,7 @@ const Profile = () => {
 
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
       <div className="profile-page">
         <div className="profile-section">
           <div className="profile-box">

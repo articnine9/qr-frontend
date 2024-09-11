@@ -37,10 +37,12 @@ const KitchenPage = () => {
       const statuses = { all: [], few: [], none: [] };
 
       cartItems.forEach((item) => {
-        const allFinished = item.items.every(
+        // Combine items and combos for status determination
+        const allFoodItems = [...item.items, ...item.combos];
+        const allFinished = allFoodItems.every(
           (foodItem) => foodItem.status === "served"
         );
-        const anyFinished = item.items.some(
+        const anyFinished = allFoodItems.some(
           (foodItem) => foodItem.status === "served"
         );
 
@@ -55,14 +57,14 @@ const KitchenPage = () => {
 
   useEffect(() => {
     if (pendingUpdate !== null && selectedIndex !== null) {
-      const { foodItemIndex, cartItemId } = pendingUpdate;
+      const { foodItemIndex, cartItemId, isCombo } = pendingUpdate;
 
       const cartItem = cartItems[selectedIndex];
-      const updatedItems = cartItem.items.map((item, index) =>
+      const updatedItems = cartItem[isCombo ? 'combos' : 'items'].map((item, index) =>
         index === foodItemIndex ? { ...item, status: "served" } : item
       );
 
-      const payload = { id: cartItemId, updatedItems };
+      const payload = { id: cartItemId, updatedItems, isCombo };
 
       dispatch(updateCartItems(payload))
         .unwrap()
@@ -82,10 +84,10 @@ const KitchenPage = () => {
     }
   }, [pendingUpdate, selectedIndex, cartItems, dispatch]);
 
-  const handleFinishClick = (foodItemIndex) => {
+  const handleFinishClick = (foodItemIndex, isCombo = false) => {
     if (selectedIndex !== null) {
       const cartItemId = cartItems[selectedIndex]._id;
-      setPendingUpdate({ foodItemIndex, cartItemId });
+      setPendingUpdate({ foodItemIndex, cartItemId, isCombo });
     }
   };
 
@@ -98,7 +100,7 @@ const KitchenPage = () => {
     return "";
   };
 
-  const filteredCartItems = cartItems; 
+  const filteredCartItems = cartItems;
 
   const selectedItem = selectedIndex !== null ? cartItems[selectedIndex] : null;
 
@@ -148,9 +150,9 @@ const KitchenPage = () => {
                   </p>
                   <div className="mb-4">
                     <h6>Ordered Food Items</h6>
-                    {selectedItem.items.length > 0 ? (
+                    {selectedItem.items.length > 0 || selectedItem.combos.length > 0 ? (
                       <div className="row">
-                        {selectedItem.items.map((foodItem, idx) => (
+                        {[...selectedItem.items, ...selectedItem.combos].map((foodItem, idx) => (
                           <div key={idx} className="col-md-4 mb-4">
                             <div
                               className={`card ${
@@ -178,7 +180,7 @@ const KitchenPage = () => {
                                 {foodItem.status !== "served" && (
                                   <button
                                     className="btn blinking-button"
-                                    onClick={() => handleFinishClick(idx)}
+                                    onClick={() => handleFinishClick(idx, selectedItem.combos.includes(foodItem))}
                                   >
                                     Mark as Served
                                   </button>

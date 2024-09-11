@@ -3,7 +3,6 @@ import "./tableorderlist.css";
 import { IoCaretDownSharp } from "react-icons/io5";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
-import NavBar from "../AdminPageNavbar/NavBar";
 
 const TableOrderList = () => {
   const [data, setData] = useState([]);
@@ -36,23 +35,23 @@ const TableOrderList = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        "https://qr-backend-application.onrender.com/cart/items"
-      );
-
+      const response = await axios.get("https://qr-backend-application.onrender.com/cart/items");
+      console.log("Fetched data:", response.data);
+  
       if (Array.isArray(response.data)) {
         setData(response.data);
         const tables = new Set(response.data.map((table) => table.tableNumber));
         setTablesWithData(tables);
-        
+  
         let tableItems = [];
         if (selectedTable === "") {
           const allItems = response.data.flatMap((table) => table.items);
-          tableItems = aggregateItems(allItems);
+          const allCombos = response.data.flatMap((table) => table.combos);
+          tableItems = aggregateItems([...allItems, ...allCombos]);
         } else {
           tableItems = response.data
             .filter((t) => t.tableNumber === parseInt(selectedTable))
-            .flatMap((t) => t.items);
+            .flatMap((t) => [...t.items, ...t.combos]);
           tableItems = aggregateItems(tableItems);
         }
         setFilteredData(tableItems);
@@ -66,15 +65,20 @@ const TableOrderList = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedTable]); 
+  }, [selectedTable]);
+  
 
   useEffect(() => {
     fetchData();
-  }, [fetchData]); 
-
+  }, [fetchData]);
 
   const aggregateItems = (items) => {
     const aggregated = items.reduce((acc, item) => {
+      if (!item || !item.name) {
+        console.warn("Skipping undefined or invalid item:", item);
+        return acc;
+      }
+  
       if (acc[item.name]) {
         acc[item.name].count += item.count || 0;
       } else {
@@ -84,6 +88,7 @@ const TableOrderList = () => {
     }, {});
     return Object.values(aggregated);
   };
+  
 
   const handleToggle = () => {
     setShowTable((prevShowTable) => !prevShowTable);
@@ -107,7 +112,7 @@ const TableOrderList = () => {
         }
       );
       alert("The Bill has been Paid");
-      fetchData(); 
+      fetchData();
     } catch (error) {
       console.error("Error in making payments:", error);
       alert("Failed to mark as paid");
@@ -120,7 +125,7 @@ const TableOrderList = () => {
 
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
       <div className="tableorder-page">
         <div className="tableorder-section">
           <div className="container mt-5 mb-5">

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./uploads.css";
-import NavBar from "../AdminPageNavbar/NavBar";
 
 const Uploads = () => {
   const [itemName, setItemName] = useState("");
@@ -23,6 +22,7 @@ const Uploads = () => {
   const [combos, setCombos] = useState([]);
   const [comboItemType, setComboItemType] = useState({});
   const [comboPrice, setComboPrice] = useState("");
+  const [comboType, setComboType] = useState("");
 
   const imageInputRef = useRef(null);
 
@@ -113,6 +113,7 @@ const Uploads = () => {
     formData.append("comboName", comboName);
     formData.append("comboImage", comboImage);
     formData.append("comboPrice", comboPrice);
+    formData.append("comboType", comboType);
     formData.append(
       "comboItems",
       JSON.stringify(
@@ -123,7 +124,9 @@ const Uploads = () => {
         }))
       )
     );
-
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
     try {
       await axios.post(
         "https://qr-backend-application.onrender.com/combos/add",
@@ -135,6 +138,7 @@ const Uploads = () => {
       alert("Combo added successfully!");
       setComboName("");
       setComboPrice("");
+      setComboType("");
       setComboImage(null);
       setComboItems([{ id: Date.now(), name: "", quantity: "" }]);
       setComboItemType({});
@@ -358,7 +362,7 @@ const Uploads = () => {
   };
 
   const isComboFormValid = () => {
-    if (!comboName?.trim() || !comboImage || !comboPrice) {
+    if (!comboName?.trim() || !comboImage || !comboPrice || !comboType) {
       return false;
     }
 
@@ -370,7 +374,7 @@ const Uploads = () => {
 
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
       <div className="upload-page">
         <div className="upload-section">
           {/* --------------------------------------Menu-------------------------------------------- */}
@@ -425,21 +429,7 @@ const Uploads = () => {
                   <option value="Non Veg">Non Veg</option>
                 </select>
               </div>
-              <div>
-                <label>Availability:</label>
-                <div>
-                  <label>
-                    <input
-                      type="radio"
-                      name="availability"
-                      value="available"
-                      checked={availability === "available"}
-                      onChange={() => setAvailability("available")}
-                    />
-                    Available
-                  </label>
-                </div>
-              </div>
+
               <div>
                 <input
                   type="file"
@@ -484,6 +474,18 @@ const Uploads = () => {
                   onChange={(e) => setComboPrice(e.target.value)}
                   placeholder="Enter combo price"
                 />
+              </div>
+              <div>
+                <select
+                  id="comboType"
+                  name="comboType"
+                  value={comboType}
+                  onChange={(e) => setComboType(e.target.value)}
+                >
+                  <option value="">Select a type</option>
+                  <option value="Veg">Veg</option>
+                  <option value="Non Veg">Non Veg</option>
+                </select>
               </div>
               <div>
                 <input

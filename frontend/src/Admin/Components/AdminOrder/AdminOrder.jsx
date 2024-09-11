@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./adminOrder.css";
 import axios from "axios";
-import NavBar from "../AdminPageNavbar/NavBar";
 
 const AdminOrder = () => {
   const [data, setData] = useState([]);
@@ -12,7 +11,8 @@ const AdminOrder = () => {
   const [selectedItems, setSelectedItems] = useState({});
   const [selectedTable, setSelectedTable] = useState("");
   const [tablesWithOrders, setTablesWithOrders] = useState(new Set());
-
+  const [comboData, setComboData] = useState([]);
+  const [selectedCombos, setSelectedCombos] = useState([]);
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -50,10 +50,20 @@ const AdminOrder = () => {
       console.error("Error fetching categories:", error);
     }
   };
-
+  const fetchCombos = async () => {
+    try {
+      const response = await axios.get(
+        "https://qr-backend-application.onrender.com/combos/combo"
+      );
+      setComboData(response.data);
+    } catch (error) {
+      console.error("Error fetching combos:", error);
+    }
+  };
   useEffect(() => {
     fetchData();
     fetchCategories();
+    fetchCombos();
   }, []);
 
   useEffect(() => {
@@ -96,7 +106,7 @@ const AdminOrder = () => {
         newItems[item._id] = {
           ...item,
           count: 1,
-          status: "not served",
+          status: "Not Served",
         };
       }
       setTablesWithOrders((prev) => new Set([...prev, item.tableNumber]));
@@ -104,6 +114,25 @@ const AdminOrder = () => {
     });
   };
 
+  const handleAddCombo = (combo) => {
+    setSelectedCombos((prevCombos) => {
+      const newCombos = { ...prevCombos };
+      if (newCombos[combo._id]) {
+        newCombos[combo._id] = {
+          ...newCombos[combo._id],
+          count: newCombos[combo._id].count + 1,
+        };
+      } else {
+        newCombos[combo._id] = {
+          ...combo,
+          count: 1,
+          status:"Not Served"          
+        };
+      }
+      setTablesWithOrders((prev) => new Set([...prev, combo.tableNumber]));
+      return newCombos;
+    });
+  };
   const handleRemove = (id) => {
     setSelectedItems((prevItems) => {
       const newItems = { ...prevItems };
@@ -121,9 +150,26 @@ const AdminOrder = () => {
     });
   };
 
+  const handleRemoveCombo = (id) => {
+    setSelectedCombos((prevCombos) => {
+      const newCombos = { ...prevCombos };
+      if (newCombos[id]) {
+        if (newCombos[id].count > 1) {
+          newCombos[id] = {
+            ...newCombos[id],
+            count: newCombos[id].count - 1,
+          };
+        } else {
+          delete newCombos[id];
+        }
+      }
+      return newCombos;
+    });
+  };
   const handleClearTable = () => {
     setSelectedItems({});
     setSelectedTable("");
+    setSelectedCombos({});
   };
 
   const handleOrderNow = async () => {
@@ -132,7 +178,10 @@ const AdminOrder = () => {
       return;
     }
 
-    if (Object.keys(selectedItems).length === 0) {
+    if (
+      Object.keys(selectedItems).length === 0 &&
+      Object.keys(selectedCombos).length === 0
+    ) {
       alert("Please choose the order");
       return;
     }
@@ -148,6 +197,16 @@ const AdminOrder = () => {
         type: item.type,
         count: item.count,
         availability: item.availability,
+      })),
+
+      combos: Object.values(selectedCombos).map((combo) => ({
+        _id: combo._id,
+        name: combo.comboName,
+        price: combo.comboPrice,
+        items: combo.comboItems,
+        categoryName: combo.comboCategoryName,
+        type: combo.comboType,
+        count: combo.count,
       })),
     };
 
@@ -171,7 +230,7 @@ const AdminOrder = () => {
 
   return (
     <>
-      <NavBar />
+      {/* <NavBar /> */}
       <div className="adminOrder-page">
         <div className="adminOrder-section">
           <div className="box">
@@ -227,7 +286,7 @@ const AdminOrder = () => {
                 <option value="Non Veg">Non Veg</option>
               </select>
             </div>
-
+            <h2>Menu</h2>
             <div className="menu-sec flex">
               {filteredData.map((item) => (
                 <div className="menu-button" key={item._id}>
@@ -237,11 +296,21 @@ const AdminOrder = () => {
                 </div>
               ))}
             </div>
+            <h2>Combo</h2>
+            <div className="combo-sec flex">
+              {comboData.map((combo) => (
+                <div className="combo-button" key={combo._id}>
+                  <button onClick={() => handleAddCombo(combo)}>
+                    {combo.comboName}
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="box">
             <div className="navBar">
-              <button onClick={handleClearTable}>Clear Table</button>
+              <button onClick={handleClearTable}>Clear Order</button>
               <button onClick={handleOrderNow}>Order Now</button>
             </div>
             <table className="table">
@@ -263,6 +332,19 @@ const AdminOrder = () => {
                     <td>{item.categoryName}</td>
                     <td>
                       <button onClick={() => handleRemove(item._id)}>
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {Object.values(selectedCombos).map((combo) => (
+                  <tr key={combo._id}>
+                    <td>{combo.count}</td>
+                    <td>{combo.comboName}</td>
+                    <td>{combo.comboType}</td>
+                    <td>{combo.comboCategoryName}</td>
+                    <td>
+                      <button onClick={() => handleRemoveCombo(combo._id)}>
                         Remove
                       </button>
                     </td>

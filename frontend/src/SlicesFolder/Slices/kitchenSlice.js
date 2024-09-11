@@ -48,7 +48,7 @@ const cartSlice = createSlice({
         if (selectedItem && selectedItem.items) { 
           state.updatedItems = selectedItem.items.map((item) => ({ 
             ...item, 
-            status: item.status || 'not finished', 
+            status: item.status || 'not served', 
           })); 
         } 
       } 
