@@ -36,7 +36,6 @@ const TableOrderList = () => {
     setLoading(true);
     try {
       const response = await axios.get("https://qr-backend-application.onrender.com/cart/items");
-      console.log("Fetched data:", response.data);
   
       if (Array.isArray(response.data)) {
         setData(response.data);
