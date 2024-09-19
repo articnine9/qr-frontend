@@ -1,49 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setSelectedIndex, updateCartItems } from "../../../SlicesFolder/Slices/kitchenSlice";
+import {
+  setSelectedIndex,
+  updateCartItems,
+  fetchCartItems,
+} from "../../../SlicesFolder/Slices/kitchenSlice";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./kitchen.css";
 import KitchenNavBar from "../KitchenNavbar/kitchenNavbar";
-import axios from "axios";
 
 const KitchenPage = () => {
   const dispatch = useDispatch();
-  const { selectedIndex, loading, error } = useSelector((state) => state.cart);
+  const { selectedIndex, loading, error, cartItems } = useSelector(
+    (state) => state.cart
+  );
   const [itemStatuses, setItemStatuses] = useState({
     all: [],
     few: [],
     none: [],
   });
-  const [cartItems, setCartItems] = useState([]);
   const [pendingUpdate, setPendingUpdate] = useState(null);
 
   useEffect(() => {
-    const fetchCartItems = async () => {
-      try {
-        const response = await axios.get(
-          "https://qr-backend-application.onrender.com/cart/items"
-        );
-        setCartItems(response.data);
-      } catch (err) {
-        console.error("Failed to fetch cart items:", err.message);
-      }
-    };
-
-    fetchCartItems();
-  }, []);
+    dispatch(fetchCartItems());
+  }, [dispatch]);
 
   useEffect(() => {
     if (cartItems.length > 0) {
       const statuses = { all: [], few: [], none: [] };
 
       cartItems.forEach((item) => {
-        // Combine items and combos for status determination
         const allFoodItems = [...item.items, ...item.combos];
         const allFinished = allFoodItems.every(
-          (foodItem) => foodItem.status === "served"
+          (foodItem) => foodItem.status === "Served"
         );
         const anyFinished = allFoodItems.some(
-          (foodItem) => foodItem.status === "served"
+          (foodItem) => foodItem.status === "Served"
         );
 
         if (allFinished) statuses.all.push(item._id);
@@ -54,27 +46,55 @@ const KitchenPage = () => {
       setItemStatuses(statuses);
     }
   }, [cartItems]);
-
+  
+  const handleFinishClick = (foodItemIndex, isCombo = false) => {
+    if (selectedIndex !== null) {
+      const cartItemId = cartItems[selectedIndex]._id;
+      setPendingUpdate({ foodItemIndex, cartItemId, isCombo });
+    }
+  };
   useEffect(() => {
     if (pendingUpdate !== null && selectedIndex !== null) {
       const { foodItemIndex, cartItemId, isCombo } = pendingUpdate;
-
       const cartItem = cartItems[selectedIndex];
-      const updatedItems = cartItem[isCombo ? 'combos' : 'items'].map((item, index) =>
-        index === foodItemIndex ? { ...item, status: "served" } : item
-      );
 
-      const payload = { id: cartItemId, updatedItems, isCombo };
+      const updatedItems = [...cartItem.items];
+      const updatedCombos = [...cartItem.combos];
+
+      if (isCombo) {
+        const comboToUpdate = updatedCombos[foodItemIndex];
+        if (comboToUpdate) {
+          updatedCombos[foodItemIndex] = {
+            ...comboToUpdate,
+            status: "Served",
+          };
+        }
+      } else {
+        const itemToUpdate = updatedItems[foodItemIndex];
+        if (itemToUpdate) {
+          updatedItems[foodItemIndex] = {
+            ...itemToUpdate,
+            status: "Served",
+          };
+        }
+      }
+
+      const filteredCombos = updatedCombos.filter(
+        (combo) => combo && combo._id && combo.status
+      );
+      const filteredItems = updatedItems.filter(
+        (item) => item && item._id && item.status
+      );
+      const payload = {
+        id: cartItemId,
+        updatedItems: isCombo ? [] : filteredItems,
+        updatedCombos: isCombo ? filteredCombos : [],
+      };
+      console.log("payload", payload);
 
       dispatch(updateCartItems(payload))
         .unwrap()
         .then(() => {
-          axios
-            .get("https://qr-backend-application.onrender.com/cart/items")
-            .then((response) => {
-              setCartItems(response.data);
-            })
-            .catch((err) => console.error("Failed to refetch cart items:", err.message));
           setPendingUpdate(null);
         })
         .catch((error) => {
@@ -84,12 +104,7 @@ const KitchenPage = () => {
     }
   }, [pendingUpdate, selectedIndex, cartItems, dispatch]);
 
-  const handleFinishClick = (foodItemIndex, isCombo = false) => {
-    if (selectedIndex !== null) {
-      const cartItemId = cartItems[selectedIndex]._id;
-      setPendingUpdate({ foodItemIndex, cartItemId, isCombo });
-    }
-  };
+
 
   const handleCardClick = (index) => dispatch(setSelectedIndex(index));
 
@@ -99,8 +114,6 @@ const KitchenPage = () => {
     if (itemStatuses.none.includes(itemId)) return "bg-danger";
     return "";
   };
-
-  const filteredCartItems = cartItems;
 
   const selectedItem = selectedIndex !== null ? cartItems[selectedIndex] : null;
 
@@ -113,10 +126,10 @@ const KitchenPage = () => {
       <KitchenNavBar />
       <div className="containers">
         <div className="left-box">
-          <span className="order-header">OrderList</span>
+          <span className="order-header">Order List</span>
           <div className="orders-list">
-            {filteredCartItems.length > 0 ? (
-              filteredCartItems.map((item, index) => (
+            {cartItems.length > 0 ? (
+              cartItems.map((item, index) => (
                 <div
                   key={index}
                   className="order-box"
@@ -125,10 +138,7 @@ const KitchenPage = () => {
                 >
                   <div className={`card ${getCardClass(item._id)}`}>
                     <div className="card-body text-center">
-                      <p
-                        className="card-text"
-                        style={{ fontSize: "1.25rem" }}
-                      >
+                      <p className="card-text" style={{ fontSize: "1.25rem" }}>
                         Table Number: {item.tableNumber}
                       </p>
                     </div>
@@ -150,45 +160,50 @@ const KitchenPage = () => {
                   </p>
                   <div className="mb-4">
                     <h6>Ordered Food Items</h6>
-                    {selectedItem.items.length > 0 || selectedItem.combos.length > 0 ? (
+                    {selectedItem.items.length > 0 ||
+                    selectedItem.combos.length > 0 ? (
                       <div className="row">
-                        {[...selectedItem.items, ...selectedItem.combos].map((foodItem, idx) => (
-                          <div key={idx} className="col-md-4 mb-4">
-                            <div
-                              className={`card ${
-                                foodItem.status === "served"
-                                  ? "bg-success text-light"
-                                  : "bg-danger text-white"
-                              }`}
-                            >
-                              <div className="card-body">
-                                <h5
-                                  className="card-title"
-                                  style={{ fontSize: "1.5rem" }}
-                                >
-                                  {foodItem.name}
-                                </h5>
-                                <p
-                                  className="card-text"
-                                  style={{ fontSize: "1.25rem" }}
-                                >
-                                  <strong>Count:</strong> {foodItem.count}
-                                </p>
-                                <p className="card-text">
-                                  <strong>Status:</strong> {foodItem.status}
-                                </p>
-                                {foodItem.status !== "served" && (
-                                  <button
-                                    className="btn blinking-button"
-                                    onClick={() => handleFinishClick(idx, selectedItem.combos.includes(foodItem))}
+                        {[...selectedItem.items, ...selectedItem.combos].map(
+                          (foodItem, idx) => (
+                            <div key={idx} className="col-md-4 mb-4">
+                              <div
+                                className={`card ${
+                                  foodItem.status === "Served"
+                                    ? "bg-success text-light"
+                                    : "bg-danger text-white"
+                                }`}
+                              >
+                                <div className="card-body cards">
+                                  <h5 className="card-title">
+                                    {foodItem.name}
+                                  </h5>
+                                  <p
+                                    className="card-text"
+                                    style={{ fontSize: "2.25rem" }}
                                   >
-                                    Mark as Served
-                                  </button>
-                                )}
+                                    <strong>Count:</strong> {foodItem.count}
+                                  </p>
+                                  <p className="card-text">
+                                    <strong>Status:</strong> {foodItem.status}
+                                  </p>
+                                  {foodItem.status !== "Served" && (
+                                    <button
+                                      className="btn blinking-button"
+                                      onClick={() =>
+                                        handleFinishClick(
+                                          idx,
+                                          selectedItem.combos.includes(foodItem)
+                                        )
+                                      }
+                                    >
+                                      Mark as Served
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     ) : (
                       <p>No food items available</p>
