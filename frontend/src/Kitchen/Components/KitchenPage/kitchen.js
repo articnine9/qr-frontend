@@ -46,13 +46,25 @@ const KitchenPage = () => {
       setItemStatuses(statuses);
     }
   }, [cartItems]);
-  
+
   const handleFinishClick = (foodItemIndex, isCombo = false) => {
     if (selectedIndex !== null) {
       const cartItemId = cartItems[selectedIndex]._id;
-      setPendingUpdate({ foodItemIndex, cartItemId, isCombo });
+      const selectedItem = cartItems[selectedIndex];
+      const foodItem = isCombo
+        ? selectedItem.combos[foodItemIndex]
+        : selectedItem.items[foodItemIndex];
+
+      if (foodItem) {
+        setPendingUpdate({ foodItemIndex, cartItemId, isCombo });
+      } else {
+        console.error("Food item not found at index", foodItemIndex);
+      }
+    } else {
+      console.error("No selected index available.");
     }
   };
+
   useEffect(() => {
     if (pendingUpdate !== null && selectedIndex !== null) {
       const { foodItemIndex, cartItemId, isCombo } = pendingUpdate;
@@ -62,49 +74,46 @@ const KitchenPage = () => {
       const updatedCombos = [...cartItem.combos];
 
       if (isCombo) {
-        const comboToUpdate = updatedCombos[foodItemIndex];
-        if (comboToUpdate) {
+        if (foodItemIndex >= 0 && foodItemIndex < updatedCombos.length) {
           updatedCombos[foodItemIndex] = {
-            ...comboToUpdate,
+            ...updatedCombos[foodItemIndex],
             status: "Served",
           };
+        } else {
+          console.error("Combo index out of bounds:", foodItemIndex);
+          return;
         }
       } else {
-        const itemToUpdate = updatedItems[foodItemIndex];
-        if (itemToUpdate) {
+        if (foodItemIndex >= 0 && foodItemIndex < updatedItems.length) {
           updatedItems[foodItemIndex] = {
-            ...itemToUpdate,
+            ...updatedItems[foodItemIndex],
             status: "Served",
           };
+        } else {
+          console.error("Item index out of bounds:", foodItemIndex);
+          return;
         }
       }
 
-      const filteredCombos = updatedCombos.filter(
-        (combo) => combo && combo._id && combo.status
-      );
-      const filteredItems = updatedItems.filter(
-        (item) => item && item._id && item.status
-      );
       const payload = {
         id: cartItemId,
-        updatedItems: isCombo ? [] : filteredItems,
-        updatedCombos: isCombo ? filteredCombos : [],
+        updatedItems: isCombo ? [] : updatedItems,
+        updatedCombos: isCombo ? updatedCombos : [],
       };
+
       console.log("payload", payload);
 
       dispatch(updateCartItems(payload))
         .unwrap()
         .then(() => {
-          setPendingUpdate(null);
+          setPendingUpdate(null); // Reset pending update
         })
         .catch((error) => {
           console.error("Failed to update cart:", error.message);
-          setPendingUpdate(null);
+          setPendingUpdate(null); // Reset pending update
         });
     }
   }, [pendingUpdate, selectedIndex, cartItems, dispatch]);
-
-
 
   const handleCardClick = (index) => dispatch(setSelectedIndex(index));
 
