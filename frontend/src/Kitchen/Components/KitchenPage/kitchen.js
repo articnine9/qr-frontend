@@ -106,11 +106,11 @@ const KitchenPage = () => {
       dispatch(updateCartItems(payload))
         .unwrap()
         .then(() => {
-          setPendingUpdate(null); // Reset pending update
+          setPendingUpdate(null); 
         })
         .catch((error) => {
           console.error("Failed to update cart:", error.message);
-          setPendingUpdate(null); // Reset pending update
+          setPendingUpdate(null); 
         });
     }
   }, [pendingUpdate, selectedIndex, cartItems, dispatch]);

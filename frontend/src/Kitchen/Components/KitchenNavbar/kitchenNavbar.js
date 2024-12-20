@@ -1,27 +1,22 @@
 import React from "react";
-import { Navbar, Nav, Button } from 'react-bootstrap'; // Import Navbar and Nav components
-import { useNavigate } from "react-router-dom"; // For navigation
-
+import { Navbar, Nav, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 const KitchenNavBar = () => {
   const navigate = useNavigate();
-
-  // Function to navigate to Stocks page
   const goToStocks = () => {
-    navigate('/kitchenStocks'); // Replace with your stocks page route
+    navigate("/kitchenStocks");
   };
-
-  // Function to navigate to Orders page
   const goToOrders = () => {
-    navigate('/kitchenPage'); // Replace with your orders page route
+    navigate("/kitchenPage");
   };
-const goToAdmin=()=>{
-  navigate("/stocks")
-}
+  const goToAdmin = () => {
+    navigate("/stocks");
+  };
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
       <Navbar.Brand>
-      <i class="fa-solid fa-kitchen-set"></i> Kitchen Page
+        <i class="fa-solid fa-kitchen-set"></i> Kitchen Page
       </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
@@ -40,5 +35,4 @@ const goToAdmin=()=>{
     </Navbar>
   );
 };
-
 export default KitchenNavBar;
