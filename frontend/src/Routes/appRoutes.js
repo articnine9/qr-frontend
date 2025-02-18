@@ -1,4 +1,3 @@
-// src/Routes/appRoutes.js
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Login from '../Admin/Components/AdminLogin/Login';
@@ -15,7 +14,6 @@ import NavBar from '../Admin/Components/AdminPageNavbar/NavBar';
 
 const Layout = ({ children }) => {
   const location = useLocation();  
-  // List of paths where the NavBar should be shown
   const showNavBar = [
     '/stocks',
     '/uploads',
