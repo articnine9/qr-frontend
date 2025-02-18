@@ -101,12 +101,10 @@ const KitchenPage = () => {
         updatedCombos: isCombo ? updatedCombos : [],
       };
 
-      // Corrected URL: no colon in the ID part
-      const url = `https://qr-backend-application.onrender.com/cart/cartitems/:${cartItemId}`;
+      const url = `https://qr-backend-application.onrender.com/cart/cartitems/${cartItemId}`;
 
       console.log("payload", payload);
 
-      // Sending the PUT request with the correct URL and payload
       dispatch(updateCartItems({ url, payload }))
         .unwrap()
         .then(() => {

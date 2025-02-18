@@ -17,7 +17,7 @@ export const updateCartItems = createAsyncThunk(
   async ({ id, updatedItems, updatedCombos }, { dispatch }) => {
     try {
       await axios.put(
-        ` https://qr-backend-application.onrender.com/cart/cartitems/:${id}`,
+        ` https://qr-backend-application.onrender.com/cart/cartitems/${id}`,
         {
           updatedItems,
           updatedCombos,

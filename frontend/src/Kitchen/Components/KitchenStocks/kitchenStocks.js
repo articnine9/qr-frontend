@@ -10,7 +10,6 @@ const KitchenStocks = () => {
   const dispatch = useDispatch();
   const [foodItems, setFoodItems] = useState([]);
 
-  // Memoized fetchFoodItemsImages using useCallback
   const fetchFoodItemsImages = useCallback(async () => {
     try {
       const response = await axios.get(
@@ -35,7 +34,7 @@ const KitchenStocks = () => {
 
   useEffect(() => {
     fetchFoodItemsImages();
-  }, [fetchFoodItemsImages]); // Included fetchFoodItemsImages in the dependency array
+  }, [fetchFoodItemsImages]); 
 
   const updateAvailability = async (typeId, newStatus) => {
     try {
