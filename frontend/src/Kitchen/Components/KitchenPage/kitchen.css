@@ -4,13 +4,12 @@
 }
 
 .bg-danger {
-  background-color:#792325 !important;
+  background-color: #792325 !important;
   color: #fff !important;
 }
-.bg-warning{
+.bg-warning {
   background-color: #c2b71e !important;
   color: #000 !important;
-
 }
 .bg-light {
   background-color: #f8f9fa !important;
@@ -61,12 +60,14 @@
 .right-box {
   width: 48%;
   height: 95%;
-  border: 1px solid black;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px,
+    rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   overflow: scroll;
   scrollbar-width: none;
+  padding: 20px;
 }
 .left-box {
   height: 95%;
@@ -80,8 +81,7 @@
   padding: 0;
   margin: 0;
 }
-.order-header
-{
+.order-header {
   width: 100%;
   font-size: xx-large;
   background-color: beige;
@@ -89,7 +89,7 @@
   justify-content: space-around;
   align-items: center;
 }
-.orders-list{
+.orders-list {
   width: 100%;
   height: 100%;
   display: flex;
@@ -100,6 +100,6 @@
   scroll-behavior: smooth;
   scrollbar-width: none;
 }
-.cards{
+.cards {
   height: fit-content;
 }

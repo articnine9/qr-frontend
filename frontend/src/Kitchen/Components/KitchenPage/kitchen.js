@@ -101,7 +101,7 @@ const KitchenPage = () => {
         updatedCombos: isCombo ? updatedCombos : [],
       };
 
-      const url = `https://qr-backend-application.onrender.com/cart/cartitems/${cartItemId}`;
+      const url = `https://qr-backend-application.onrender.com/cart/cartitems/:${cartItemId}`;
 
       console.log("payload", payload);
 
