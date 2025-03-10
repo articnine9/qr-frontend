@@ -59,7 +59,6 @@ const Profile = () => {
 
   return (
     <>
-      {/* <NavBar /> */}
       <div className="profile-page">
         <div className="profile-section">
           <div className="profile-box">

@@ -122,7 +122,7 @@ const KitchenStocks = () => {
       setError("Error fetching data. Please try again.");
       console.error("Error:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false); // Set loading state to false after data fetching
     }
   }, [dispatch]);
 

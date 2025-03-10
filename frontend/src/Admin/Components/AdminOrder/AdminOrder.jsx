@@ -126,10 +126,26 @@ const AdminOrder = () => {
         newCombos[combo._id] = {
           ...combo,
           count: 1,
-          status:"Not Served"          
+          status: "Not Served",
         };
       }
       setTablesWithOrders((prev) => new Set([...prev, combo.tableNumber]));
+      return newCombos;
+    });
+  };
+  const handleRemoveCombo = (id) => {
+    setSelectedCombos((prevCombos) => {
+      const newCombos = { ...prevCombos };
+      if (newCombos[id]) {
+        if (newCombos[id].count > 1) {
+          newCombos[id] = {
+            ...newCombos[id],
+            count: newCombos[id].count - 1,
+          };
+        } else {
+          delete newCombos[id];
+        }
+      }
       return newCombos;
     });
   };
@@ -150,22 +166,6 @@ const AdminOrder = () => {
     });
   };
 
-  const handleRemoveCombo = (id) => {
-    setSelectedCombos((prevCombos) => {
-      const newCombos = { ...prevCombos };
-      if (newCombos[id]) {
-        if (newCombos[id].count > 1) {
-          newCombos[id] = {
-            ...newCombos[id],
-            count: newCombos[id].count - 1,
-          };
-        } else {
-          delete newCombos[id];
-        }
-      }
-      return newCombos;
-    });
-  };
   const handleClearTable = () => {
     setSelectedItems({});
     setSelectedTable("");
@@ -230,7 +230,6 @@ const AdminOrder = () => {
 
   return (
     <>
-      {/* <NavBar /> */}
       <div className="adminOrder-page">
         <div className="adminOrder-section">
           <div className="box">

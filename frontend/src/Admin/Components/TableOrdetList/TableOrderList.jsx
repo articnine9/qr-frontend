@@ -119,12 +119,11 @@ const TableOrderList = () => {
   };
 
   const areAllItemsFinished = () => {
-    return filteredData.every((item) => item.status === "served");
+    return filteredData.every((item) => item.status === "Served");
   };
 
   return (
     <>
-      {/* <NavBar /> */}
       <div className="tableorder-page">
         <div className="tableorder-section">
           <div className="container mt-5 mb-5">

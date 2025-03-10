@@ -374,7 +374,6 @@ const Uploads = () => {
 
   return (
     <>
-      {/* <NavBar /> */}
       <div className="upload-page">
         <div className="upload-section">
           {/* --------------------------------------Menu-------------------------------------------- */}

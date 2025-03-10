@@ -76,7 +76,6 @@ const RecentBills = () => {
 
   return (
     <>
-      {/* <NavBar /> */}
       <div className="recent-page">
         <div className="recent-section">
           <div className="cntnts">

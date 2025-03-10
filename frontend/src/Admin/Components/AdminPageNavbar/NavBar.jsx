@@ -26,7 +26,7 @@ const NavBar = () => {
             <ul className="nav nav-underline">
               <li className="nav-item">
                 <Link className="nav-link " to="/stocks">
-                  Stocks
+                  Menu
                 </Link>
               </li>
               <li className="nav-item">
@@ -41,7 +41,7 @@ const NavBar = () => {
               </li>
               <li className="nav-item">
                 <Link className="nav-link" to="/recent">
-                  Recent
+                  Recent Bills
                 </Link>
               </li>
               <li className="nav-item">

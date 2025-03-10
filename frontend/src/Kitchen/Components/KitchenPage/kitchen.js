@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setSelectedIndex,
-  updateCartItems,
-  fetchCartItems,
-} from "../../../SlicesFolder/Slices/kitchenSlice";
+import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./kitchen.css";
 import KitchenNavBar from "../KitchenNavbar/kitchenNavbar";
 
 const KitchenPage = () => {
-  const dispatch = useDispatch();
-  const { selectedIndex, loading, error, cartItems } = useSelector(
-    (state) => state.cart
-  );
+  const [cartItems, setCartItems] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [itemStatuses, setItemStatuses] = useState({
     all: [],
     few: [],
     none: [],
   });
-  const [pendingUpdate, setPendingUpdate] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchCartItems());
-  }, [dispatch]);
+    setLoading(true);
+    axios
+      .get("https://qr-backend-application.onrender.com/cart/items")
+      .then((response) => {
+        setCartItems(response.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     if (cartItems.length > 0) {
@@ -51,12 +55,42 @@ const KitchenPage = () => {
     if (selectedIndex !== null) {
       const cartItemId = cartItems[selectedIndex]._id;
       const selectedItem = cartItems[selectedIndex];
-      const foodItem = isCombo
-        ? selectedItem.combos[foodItemIndex]
-        : selectedItem.items[foodItemIndex];
-
+      let foodItem;
+  
+      // If it's a combo, access the combo array, otherwise access the items array
+      if (isCombo) {
+        foodItem = selectedItem.combos[foodItemIndex];
+      } else {
+        foodItem = selectedItem.items[foodItemIndex];
+      }
+  
       if (foodItem) {
-        setPendingUpdate({ foodItemIndex, cartItemId, isCombo });
+        const url = `https://qr-backend-application.onrender.com/cart/cartitems/${cartItemId}/item/${foodItem._id}`;
+  
+        axios
+          .put(url)
+          .then((response) => {
+            console.log("Status updated successfully:", response.data);
+            setCartItems((prevItems) =>
+              prevItems.map((item) =>
+                item._id === cartItemId
+                  ? {
+                      ...item,
+                      items: item.items.map((i) =>
+                        i._id === foodItem._id ? { ...i, status: "Served" } : i
+                      ),
+                      combos: item.combos.map((c) =>
+                        c._id === foodItem._id ? { ...c, status: "Served" } : c
+                      ),
+                    }
+                  : item
+              )
+            );
+          })
+          .catch((error) => {
+            console.error("Error updating item status:", error);
+            alert("Failed to update item status. Please try again later.");
+          });
       } else {
         console.error("Food item not found at index", foodItemIndex);
       }
@@ -64,60 +98,9 @@ const KitchenPage = () => {
       console.error("No selected index available.");
     }
   };
+  
 
-  useEffect(() => {
-    if (pendingUpdate !== null && selectedIndex !== null) {
-      const { foodItemIndex, cartItemId, isCombo } = pendingUpdate;
-      const cartItem = cartItems[selectedIndex];
-
-      const updatedItems = [...cartItem.items];
-      const updatedCombos = [...cartItem.combos];
-
-      if (isCombo) {
-        if (foodItemIndex >= 0 && foodItemIndex < updatedCombos.length) {
-          updatedCombos[foodItemIndex] = {
-            ...updatedCombos[foodItemIndex],
-            status: "Served",
-          };
-        } else {
-          console.error("Combo index out of bounds:", foodItemIndex);
-          return;
-        }
-      } else {
-        if (foodItemIndex >= 0 && foodItemIndex < updatedItems.length) {
-          updatedItems[foodItemIndex] = {
-            ...updatedItems[foodItemIndex],
-            status: "Served",
-          };
-        } else {
-          console.error("Item index out of bounds:", foodItemIndex);
-          return;
-        }
-      }
-
-      const payload = {
-        id: cartItemId,
-        updatedItems: isCombo ? [] : updatedItems,
-        updatedCombos: isCombo ? updatedCombos : [],
-      };
-
-      const url = `https://qr-backend-application.onrender.com/cart/cartitems/:${cartItemId}`;
-
-      console.log("payload", payload);
-
-      dispatch(updateCartItems({ url, payload }))
-        .unwrap()
-        .then(() => {
-          setPendingUpdate(null); 
-        })
-        .catch((error) => {
-          console.error("Failed to update cart:", error.message);
-          setPendingUpdate(null); 
-        });
-    }
-  }, [pendingUpdate, selectedIndex, cartItems, dispatch]);
-
-  const handleCardClick = (index) => dispatch(setSelectedIndex(index));
+  const handleCardClick = (index) => setSelectedIndex(index);
 
   const getCardClass = (itemId) => {
     if (itemStatuses.all.includes(itemId)) return "bg-success";
@@ -174,47 +157,79 @@ const KitchenPage = () => {
                     {selectedItem.items.length > 0 ||
                     selectedItem.combos.length > 0 ? (
                       <div className="row">
-                        {[...selectedItem.items, ...selectedItem.combos].map(
-                          (foodItem, idx) => (
-                            <div key={idx} className="col-md-4 mb-4">
-                              <div
-                                className={`card ${
-                                  foodItem.status === "Served"
-                                    ? "bg-success text-light"
-                                    : "bg-danger text-white"
-                                }`}
-                              >
-                                <div className="card-body cards">
-                                  <h5 className="card-title">
-                                    {foodItem.name}
-                                  </h5>
-                                  <p
-                                    className="card-text"
-                                    style={{ fontSize: "2.25rem" }}
+                        {/* Regular Items */}
+                        {selectedItem.items.map((foodItem, idx) => (
+                          <div key={idx} className="col-md-4 mb-4">
+                            <div
+                              className={`card ${
+                                foodItem.status === "Served"
+                                  ? "bg-success text-light"
+                                  : "bg-danger text-white"
+                              }`}
+                            >
+                              <div className="card-body cards">
+                                <h5 className="card-title">{foodItem.name}</h5>
+                                <p
+                                  className="card-text"
+                                  style={{ fontSize: "2.25rem" }}
+                                >
+                                  <strong>Count:</strong> {foodItem.count}
+                                </p>
+                                <p className="card-text">
+                                  <strong>Status:</strong> {foodItem.status}
+                                </p>
+                                {foodItem.status !== "Served" && (
+                                  <button
+                                    className="btn blinking-button"
+                                    onClick={
+                                      () => handleFinishClick(idx, false) // false for regular items
+                                    }
                                   >
-                                    <strong>Count:</strong> {foodItem.count}
-                                  </p>
-                                  <p className="card-text">
-                                    <strong>Status:</strong> {foodItem.status}
-                                  </p>
-                                  {foodItem.status !== "Served" && (
-                                    <button
-                                      className="btn blinking-button"
-                                      onClick={() =>
-                                        handleFinishClick(
-                                          idx,
-                                          selectedItem.combos.includes(foodItem)
-                                        )
-                                      }
-                                    >
-                                      Mark as Served
-                                    </button>
-                                  )}
-                                </div>
+                                    Mark as Served
+                                  </button>
+                                )}
                               </div>
                             </div>
-                          )
-                        )}
+                          </div>
+                        ))}
+                        {/* Combo Items */}
+                        {selectedItem.combos.map((foodItem, idx) => (
+                          <div
+                            key={selectedItem.items.length + idx}
+                            className="col-md-4 mb-4"
+                          >
+                            <div
+                              className={`card ${
+                                foodItem.status === "Served"
+                                  ? "bg-success text-light"
+                                  : "bg-danger text-white"
+                              }`}
+                            >
+                              <div className="card-body cards">
+                                <h5 className="card-title">{foodItem.name}</h5>
+                                <p
+                                  className="card-text"
+                                  style={{ fontSize: "2.25rem" }}
+                                >
+                                  <strong>Count:</strong> {foodItem.count}
+                                </p>
+                                <p className="card-text">
+                                  <strong>Status:</strong> {foodItem.status}
+                                </p>
+                                {foodItem.status !== "Served" && (
+                                  <button
+                                    className="btn blinking-button"
+                                    onClick={
+                                      () => handleFinishClick(idx, true) // true for combo items
+                                    }
+                                  >
+                                    Mark as Served
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     ) : (
                       <p>No food items available</p>
@@ -226,6 +241,7 @@ const KitchenPage = () => {
           )}
         </div>
       </div>
+      
     </>
   );
 };

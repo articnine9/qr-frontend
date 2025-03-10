@@ -109,4 +109,6 @@
   .switch input:not(:checked) + .slider:before {
     animation: slideLeft 0.15s forwards;
   }
-  
+  .food-items-container h3{
+    text-align: center;
+  }
