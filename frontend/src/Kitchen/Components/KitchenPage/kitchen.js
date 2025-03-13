@@ -56,17 +56,17 @@ const KitchenPage = () => {
       const cartItemId = cartItems[selectedIndex]._id;
       const selectedItem = cartItems[selectedIndex];
       let foodItem;
-  
+
       // If it's a combo, access the combo array, otherwise access the items array
       if (isCombo) {
         foodItem = selectedItem.combos[foodItemIndex];
       } else {
         foodItem = selectedItem.items[foodItemIndex];
       }
-  
+
       if (foodItem) {
         const url = `https://qr-backend-application.onrender.com/cart/cartitems/${cartItemId}/item/${foodItem._id}`;
-  
+        console.log("Sending request to update:", url);
         axios
           .put(url)
           .then((response) => {
@@ -98,7 +98,6 @@ const KitchenPage = () => {
       console.error("No selected index available.");
     }
   };
-  
 
   const handleCardClick = (index) => setSelectedIndex(index);
 
@@ -206,7 +205,16 @@ const KitchenPage = () => {
                               }`}
                             >
                               <div className="card-body cards">
-                                <h5 className="card-title">{foodItem.name}</h5>
+                                <h5 className="card-title">
+                                  {foodItem.name} <br /> <br />
+                                  {foodItem.items.map((item, index) => (
+                                    <span key={index}>
+                                      {item.name}
+                                      {index < foodItem.items.length - 1 &&
+                                        ", "}
+                                    </span>
+                                  ))}
+                                </h5>
                                 <p
                                   className="card-text"
                                   style={{ fontSize: "2.25rem" }}
@@ -241,7 +249,6 @@ const KitchenPage = () => {
           )}
         </div>
       </div>
-      
     </>
   );
 };

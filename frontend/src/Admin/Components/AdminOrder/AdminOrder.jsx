@@ -209,7 +209,7 @@ const AdminOrder = () => {
         count: combo.count,
       })),
     };
-
+// console.log(orderData)
     try {
       const response = await axios.post(
         "https://qr-backend-application.onrender.com/cart/cartitems",
