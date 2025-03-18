@@ -209,9 +209,10 @@ const KitchenPage = () => {
                                   {foodItem.name} <br /> <br />
                                   {foodItem.items.map((item, index) => (
                                     <span key={index}>
-                                      {item.name}
+                                      {item.name} - {item.quantity}
                                       {index < foodItem.items.length - 1 &&
                                         ", "}
+                                        <br/>
                                     </span>
                                   ))}
                                 </h5>
