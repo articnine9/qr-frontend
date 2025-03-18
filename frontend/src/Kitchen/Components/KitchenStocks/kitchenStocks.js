@@ -12,7 +12,8 @@ const FoodItemCard = ({ item, onToggle }) => (
     <Card
       className="food-item-card"
       style={{
-        backgroundColor: item.availability === "available" ? "#d4edda" : "#f8d7da",
+        backgroundColor:
+          item.availability === "available" ? "#d4edda" : "#f8d7da",
       }}
     >
       <Card.Img
@@ -48,7 +49,8 @@ const ComboCard = ({ combo, onToggle }) => (
     <Card
       className="food-item-card"
       style={{
-        backgroundColor: combo.availability === "available" ? "#d4edda" : "#f8d7da",
+        backgroundColor:
+          combo.availability === "available" ? "#d4edda" : "#f8d7da",
       }}
     >
       <Card.Img
@@ -82,13 +84,13 @@ const KitchenStocks = () => {
   const dispatch = useDispatch();
   const [foodItems, setFoodItems] = useState([]);
   const [combos, setCombos] = useState([]);
-  const [loading, setLoading] = useState(true);  // To handle loading state
-  const [error, setError] = useState(null);  // To handle error state
+  const [loading, setLoading] = useState(true); // To handle loading state
+  const [error, setError] = useState(null); // To handle error state
 
   const fetchFoodItemsImages = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);  // Reset previous errors
+      setError(null); // Reset previous errors
       const foodItemsResponse = await axios.get(
         "https://qr-backend-application.onrender.com/menu/stocks"
       );
@@ -122,7 +124,7 @@ const KitchenStocks = () => {
       setError("Error fetching data. Please try again.");
       console.error("Error:", error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   }, [dispatch]);
 
@@ -142,7 +144,7 @@ const KitchenStocks = () => {
         ? `https://qr-backend-application.onrender.com/combos/stocks/${id}` // Combo URL
         : `https://qr-backend-application.onrender.com/menu/stocks/${id}`; // Food Item URL
 
-      const response = await axios.patch(url, { availability: newStatus });
+      await axios.patch(url, { availability: newStatus });
 
       if (isCombo) {
         setCombos((prevCombos) =>
@@ -184,7 +186,11 @@ const KitchenStocks = () => {
             <h3>Food Items</h3>
             <Row xs={1} sm={2} md={3} lg={4} className="g-4">
               {foodItems.map((item) => (
-                <FoodItemCard key={item.typeId} item={item} onToggle={handleToggleChange} />
+                <FoodItemCard
+                  key={item.typeId}
+                  item={item}
+                  onToggle={handleToggleChange}
+                />
               ))}
             </Row>
           </div>
@@ -195,7 +201,11 @@ const KitchenStocks = () => {
             <h3>Combos</h3>
             <Row xs={1} sm={2} md={3} lg={4} className="g-4">
               {combos.map((combo) => (
-                <ComboCard key={combo.comboId} combo={combo} onToggle={handleToggleChange} />
+                <ComboCard
+                  key={combo.comboId}
+                  combo={combo}
+                  onToggle={handleToggleChange}
+                />
               ))}
             </Row>
           </div>
