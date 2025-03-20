@@ -53,3 +53,23 @@ th {
   font-weight: bold;
   width: 400px;
 }
+
+.option-served {
+  background-color: #198754;
+  color: white;
+}
+
+.option-not-served {
+  background-color: red;
+  color: white;
+}
+
+.option-partial {
+  background-color: yellow;
+  color: black;
+}
+
+.option-no-order {
+  background-color: white;
+  color: black;
+}

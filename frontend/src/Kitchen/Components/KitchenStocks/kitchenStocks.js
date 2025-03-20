@@ -28,7 +28,7 @@ const FoodItemCard = ({ item, onToggle }) => (
         alt={item.typeName}
       />
       <Card.Body>
-        <Card.Title>{item.typeName}</Card.Title>
+        <Card.Title>{item.typeName} - {item.stock}</Card.Title>
         <label className="switch">
           <input
             type="checkbox"
@@ -102,6 +102,7 @@ const KitchenStocks = () => {
         categoryName: item.categoryName,
         typeId: item._id,
         type: item.type,
+        stock: item.stock,
         availability: item.availability,
       }));
       dispatch(setFoodItemImages(foodItemsUrls));
