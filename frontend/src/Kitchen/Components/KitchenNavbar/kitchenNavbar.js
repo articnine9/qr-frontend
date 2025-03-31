@@ -12,6 +12,8 @@ const KitchenNavBar = () => {
   };
   const goToAdmin = () => {
     navigate("/stocks");
+  }; const goToServer = () => {
+    navigate("/server");
   };
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
@@ -29,6 +31,9 @@ const KitchenNavBar = () => {
           </Button>
           <Button variant="outline-light" onClick={goToAdmin}>
             Admin
+          </Button>
+          <Button variant="outline-light" onClick={goToServer}>
+            Server
           </Button>
         </Nav>
       </Navbar.Collapse>

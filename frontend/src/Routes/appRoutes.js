@@ -11,6 +11,7 @@ import AdminOrder from '../Admin/Components/AdminOrder/AdminOrder';
 import KitchenPage from '../Kitchen/Components/KitchenPage/kitchen';
 import KitchenStocks from '../Kitchen/Components/KitchenStocks/kitchenStocks';
 import NavBar from '../Admin/Components/AdminPageNavbar/NavBar';
+import Eg from '../Kitchen/Components/KitchenPage/Eg';
 
 const Layout = ({ children }) => {
   const location = useLocation();  
@@ -43,6 +44,7 @@ const AppRoutes = () => (
     <Route path="/adminOrder" element={<Layout><AdminOrder /></Layout>} />
     <Route path="/kitchenPage" element={<KitchenPage />} />
     <Route path="/kitchenStocks" element={<KitchenStocks />} />
+    <Route path="/server" element={<Eg />} />
   </Routes>
 );
 
