@@ -59,6 +59,9 @@ const KitchenOrders = () => {
                       </span> */}
                       <span>
                         <strong>Count:</strong> {item.count}
+                        <div className="count">
+                          
+                        </div>
                       </span>
                       <br />
                       {/* <span>
@@ -94,7 +97,7 @@ const KitchenOrders = () => {
                         <strong>Type:</strong> {combo.type}
                       </span> */}
                       <span>
-                        <strong>Count:</strong> {combo.count}
+                        <strong>Count:</strong> {combo.count}  
                       </span>
                       {/* <span>
                         <strong>Price:</strong> ₹{combo.price}
